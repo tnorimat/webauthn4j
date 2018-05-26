@@ -431,6 +431,12 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#license">1.5. License</a></li>
 </ul>
 </li>
+<li><a href="#quick-start">2. Quick Start</a>
+<ul class="sectlevel2">
+<li><a href="#attestation-verification">2.1. Attestation verification</a></li>
+<li><a href="#assertion-verification">2.2. Assertion verification</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
@@ -451,7 +457,7 @@ Initially, the specification was developed as FIDO 2.0 by the FIDO Alliance, but
 <div class="sect2">
 <h3 id="webauthn4j"><a class="anchor" href="#webauthn4j"></a>1.2. WebAuthn4J</h3>
 <div class="paragraph">
-<p>WebAuthn4J is a portable Java library for WebAuthn assertion verification</p>
+<p>WebAuthn4J is a portable Java library for WebAuthn assertion and attestation verification</p>
 </div>
 <div class="sect3">
 <h4 id="supported-attestation-statement-formats"><a class="anchor" href="#supported-attestation-statement-formats"></a>1.2.1. Supported Attestation Statement Formats</h4>
@@ -515,11 +521,79 @@ Initially, the specification was developed as FIDO 2.0 by the FIDO Alliance, but
 </div>
 </div>
 </div>
+<div class="sect1">
+<h2 id="quick-start"><a class="anchor" href="#quick-start"></a>2. Quick Start</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="attestation-verification"><a class="anchor" href="#attestation-verification"></a>2.1. Attestation verification</h3>
+<div class="paragraph">
+<p>To verify an attestation on authenticator registration, call <code>WebAuthnRegistrationContextValidator#validate</code>.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-java" data-lang="java">// Client properties
+byte[] collectedClientData = null /* set collectedClientData */;
+byte[] attestationObject   = null /* set attestationObject */;
+
+// Server properties
+Origin origin          = null /* set origin */;
+String rpId            = null /* set rpId */;
+Challenge challenge    = null /* set challenge */;
+byte[] tokenBindingId  = null /* set tokenBindingId */;
+ServerProperty serverProperty = new ServerProperty(origin, rpId, challenge, tokenBindingId);
+
+WebAuthnRegistrationContext registrationContext = new WebAuthnRegistrationContext(collectedClientData, attestationObject, serverProperty);
+
+WebAuthnRegistrationContextValidator webAuthnRegistrationContextValidator =
+        WebAuthnRegistrationContextValidator.createNullAttestationStatementValidator();
+webAuthnRegistrationContextValidator.validate(registrationContext);</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="assertion-verification"><a class="anchor" href="#assertion-verification"></a>2.2. Assertion verification</h3>
+<div class="paragraph">
+<p>To verify an assertion on authentication, call <code>WebAuthnAuthenticationContextValidator#validate</code>.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-java" data-lang="java">// Client properties
+byte[] credentialId        = null /* set credentialId */;
+byte[] collectedClientData = null /* set collectedClientData */;
+byte[] authenticatorData = null /* set authenticatorData */;
+byte[] signature = null /* set signature */;
+
+// Server properties
+Origin origin          = null /* set origin */;
+String rpId            = null /* set rpId */;
+Challenge challenge    = null /* set challenge */;
+byte[] tokenBindingId  = null /* set tokenBindingId */;
+ServerProperty serverProperty = new ServerProperty(origin, rpId, challenge, tokenBindingId);
+
+WebAuthnAuthenticationContext authenticationContext =
+        new WebAuthnAuthenticationContext(
+                credentialId,
+                collectedClientData,
+                authenticatorData,
+                signature,
+                serverProperty
+        );
+Authenticator authenticator = null /* set authenticator */;
+
+WebAuthnAuthenticationContextValidator webAuthnAuthenticationContextValidator =
+        new WebAuthnAuthenticationContextValidator();
+
+webAuthnAuthenticationContextValidator.validate(authenticationContext, authenticator, true);</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div id="footer">
 <div id="footer-text">
 Version 0.5.4-SNAPSHOT<br>
-Last updated 2018-05-26 02:46:52 +00:00
+Last updated 2018-05-26 04:06:36 +00:00
 </div>
 </div>
 </body>

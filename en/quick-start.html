@@ -5,7 +5,7 @@
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.2">
-<title>導入</title>
+<title>Quick Start</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400">
 <style>
 /* Asciidoctor default stylesheet | MIT License | http://asciidoctor.org */
@@ -418,13 +418,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#導入">1. 導入</a>
+<li><a href="#quick-start">1. Quick Start</a>
 <ul class="sectlevel2">
-<li><a href="#web-authenticationとは">1.1. Web Authenticationとは</a></li>
-<li><a href="#webauthn4jとは">1.2. WebAuthn4Jとは</a></li>
-<li><a href="#要件">1.3. 要件</a></li>
-<li><a href="#ソースコード">1.4. ソースコード</a></li>
-<li><a href="#ライセンス">1.5. ライセンス</a></li>
+<li><a href="#attestation-verification">1.1. Attestation verification</a></li>
+<li><a href="#assertion-verification">1.2. Assertion verification</a></li>
 </ul>
 </li>
 </ul>
@@ -432,83 +429,69 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="導入"><a class="anchor" href="#導入"></a>1. 導入</h2>
+<h2 id="quick-start"><a class="anchor" href="#quick-start"></a>1. Quick Start</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="web-authenticationとは"><a class="anchor" href="#web-authenticationとは"></a>1.1. Web Authenticationとは</h3>
+<h3 id="attestation-verification"><a class="anchor" href="#attestation-verification"></a>1.1. Attestation verification</h3>
 <div class="paragraph">
-<p>Web Authenticationは、W3Cで仕様策定が進められている、Webアプリケーションの新しいセキュアな認証方式仕様です。
-ローカル認証や公開鍵認証、Origin別の鍵管理を組み合わせることで、フィッシングなど認証プロセスに対する攻撃に対して堅固な認証を実現しています。
-主要ブラウザでの実装が進みつつあり、セキュリティ、利便性を重視するユーザーに対して優れた選択肢を提供します。
-当初はFIDO AllianceでFIDO2.0の一部として仕様策定が進められていましたが、現在はW3Cに移管され、仕様策定が行われています。</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="webauthn4jとは"><a class="anchor" href="#webauthn4jとは"></a>1.2. WebAuthn4Jとは</h3>
-<div class="paragraph">
-<p>Web Authentication仕様に基づくアサーションの検証を行うためのポータブルなJavaライブラリです。
-元々はSpring Security WebAuthnの一部として開発を進めていましたが、より多くのアプリケーションに対してWeb Authentication仕様に
-基づく認証機能を提供するためにSpring Security WebAuthnからアサーションの検証に関するコアを切り出して依存関係を最小化しました。</p>
-</div>
-<div class="sect3">
-<h4 id="サポートする証言ステートメントフォーマット"><a class="anchor" href="#サポートする証言ステートメントフォーマット"></a>1.2.1. サポートする証言ステートメントフォーマット</h4>
-<div class="paragraph">
-<p>Spring Security WebAuthnが現在サポートする証言ステートメントフォーマットは以下の通りです。</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>None Attestation Statement Format</p>
-</li>
-<li>
-<p>FIDO-U2F Attestation Statement Format</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>それ以外の証言ステートメントフォーマットのサポートも順次行う予定です。</p>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="要件"><a class="anchor" href="#要件"></a>1.3. 要件</h3>
-<div class="sect3">
-<h4 id="言語"><a class="anchor" href="#言語"></a>1.3.1. 言語</h4>
-<div class="ulist">
-<ul>
-<li>
-<p>Java8以降</p>
-</li>
-</ul>
-</div>
-</div>
-<div class="sect3">
-<h4 id="動作環境"><a class="anchor" href="#動作環境"></a>1.3.2. 動作環境</h4>
-<div class="ulist">
-<ul>
-<li>
-<p>SecureContext（サイトがHTTPS接続か、localhost）</p>
-</li>
-</ul>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="ソースコード"><a class="anchor" href="#ソースコード"></a>1.4. ソースコード</h3>
-<div class="paragraph">
-<p>ソースコードは <a href="https://github.com/webauthn4j/webauthn4j">Github</a> で管理されています。</p>
+<p>To verify an attestation on authenticator registration, call <code>WebAuthnRegistrationContextValidator#validate</code>.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>git clone git@github.com:webauthn4j/webauthn4j.git</pre>
+<pre class="prettyprint highlight"><code class="language-java" data-lang="java">// Client properties
+byte[] collectedClientData = null /* set collectedClientData */;
+byte[] attestationObject   = null /* set attestationObject */;
+
+// Server properties
+Origin origin          = null /* set origin */;
+String rpId            = null /* set rpId */;
+Challenge challenge    = null /* set challenge */;
+byte[] tokenBindingId  = null /* set tokenBindingId */;
+ServerProperty serverProperty = new ServerProperty(origin, rpId, challenge, tokenBindingId);
+
+WebAuthnRegistrationContext registrationContext = new WebAuthnRegistrationContext(collectedClientData, attestationObject, serverProperty);
+
+WebAuthnRegistrationContextValidator webAuthnRegistrationContextValidator =
+        WebAuthnRegistrationContextValidator.createNullAttestationStatementValidator();
+webAuthnRegistrationContextValidator.validate(registrationContext);</code></pre>
 </div>
 </div>
 </div>
 <div class="sect2">
-<h3 id="ライセンス"><a class="anchor" href="#ライセンス"></a>1.5. ライセンス</h3>
+<h3 id="assertion-verification"><a class="anchor" href="#assertion-verification"></a>1.2. Assertion verification</h3>
 <div class="paragraph">
-<p>WebAuthn4jは <a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache 2.0 license</a> ライセンスの
-オープンソースソフトウェアです。</p>
+<p>To verify an assertion on authentication, call <code>WebAuthnAuthenticationContextValidator#validate</code>.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-java" data-lang="java">// Client properties
+byte[] credentialId        = null /* set credentialId */;
+byte[] collectedClientData = null /* set collectedClientData */;
+byte[] authenticatorData = null /* set authenticatorData */;
+byte[] signature = null /* set signature */;
+
+// Server properties
+Origin origin          = null /* set origin */;
+String rpId            = null /* set rpId */;
+Challenge challenge    = null /* set challenge */;
+byte[] tokenBindingId  = null /* set tokenBindingId */;
+ServerProperty serverProperty = new ServerProperty(origin, rpId, challenge, tokenBindingId);
+
+WebAuthnAuthenticationContext authenticationContext =
+        new WebAuthnAuthenticationContext(
+                credentialId,
+                collectedClientData,
+                authenticatorData,
+                signature,
+                serverProperty
+        );
+Authenticator authenticator = null /* set authenticator */;
+
+WebAuthnAuthenticationContextValidator webAuthnAuthenticationContextValidator =
+        new WebAuthnAuthenticationContextValidator();
+
+webAuthnAuthenticationContextValidator.validate(authenticationContext, authenticator, true);</code></pre>
+</div>
 </div>
 </div>
 </div>
