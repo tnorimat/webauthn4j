@@ -542,10 +542,11 @@ Challenge challenge    = null /* set challenge */;
 byte[] tokenBindingId  = null /* set tokenBindingId */;
 ServerProperty serverProperty = new ServerProperty(origin, rpId, challenge, tokenBindingId);
 
-WebAuthnRegistrationContext registrationContext = new WebAuthnRegistrationContext(collectedClientData, attestationObject, serverProperty);
+WebAuthnRegistrationContext registrationContext = new WebAuthnRegistrationContext(collectedClientData, attestationObject, serverProperty, false);
 
 WebAuthnRegistrationContextValidator webAuthnRegistrationContextValidator =
         WebAuthnRegistrationContextValidator.createNullAttestationStatementValidator();
+
 webAuthnRegistrationContextValidator.validate(registrationContext);</code></pre>
 </div>
 </div>
@@ -593,7 +594,7 @@ webAuthnAuthenticationContextValidator.validate(authenticationContext, authentic
 <div id="footer">
 <div id="footer-text">
 Version 0.5.4-SNAPSHOT<br>
-Last updated 2018-05-26 04:06:36 +00:00
+Last updated 2018-05-27 15:03:41 +00:00
 </div>
 </div>
 </body>
