@@ -532,8 +532,8 @@ Initially, the specification was developed as FIDO 2.0 by the FIDO Alliance, but
 <div class="listingblock">
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-java" data-lang="java">// Client properties
-byte[] collectedClientData = null /* set collectedClientData */;
-byte[] attestationObject   = null /* set attestationObject */;
+byte[] clientDataJSON    = null /* set clientDataJSON */;
+byte[] attestationObject = null /* set attestationObject */;
 
 // Server properties
 Origin origin          = null /* set origin */;
@@ -542,7 +542,7 @@ Challenge challenge    = null /* set challenge */;
 byte[] tokenBindingId  = null /* set tokenBindingId */;
 ServerProperty serverProperty = new ServerProperty(origin, rpId, challenge, tokenBindingId);
 
-WebAuthnRegistrationContext registrationContext = new WebAuthnRegistrationContext(collectedClientData, attestationObject, serverProperty, false);
+WebAuthnRegistrationContext registrationContext = new WebAuthnRegistrationContext(clientDataJSON, attestationObject, serverProperty, false);
 
 WebAuthnRegistrationContextValidator webAuthnRegistrationContextValidator =
         WebAuthnRegistrationContextValidator.createNullAttestationStatementValidator();
@@ -559,8 +559,8 @@ webAuthnRegistrationContextValidator.validate(registrationContext);</code></pre>
 <div class="listingblock">
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-java" data-lang="java">// Client properties
-byte[] credentialId        = null /* set credentialId */;
-byte[] collectedClientData = null /* set collectedClientData */;
+byte[] credentialId      = null /* set credentialId */;
+byte[] clientDataJSON    = null /* set clientDataJSON */;
 byte[] authenticatorData = null /* set authenticatorData */;
 byte[] signature = null /* set signature */;
 
@@ -574,17 +574,18 @@ ServerProperty serverProperty = new ServerProperty(origin, rpId, challenge, toke
 WebAuthnAuthenticationContext authenticationContext =
         new WebAuthnAuthenticationContext(
                 credentialId,
-                collectedClientData,
+                clientDataJSON,
                 authenticatorData,
                 signature,
-                serverProperty
+                serverProperty,
+                true
         );
 Authenticator authenticator = null /* set authenticator */;
 
 WebAuthnAuthenticationContextValidator webAuthnAuthenticationContextValidator =
         new WebAuthnAuthenticationContextValidator();
 
-webAuthnAuthenticationContextValidator.validate(authenticationContext, authenticator, true);</code></pre>
+webAuthnAuthenticationContextValidator.validate(authenticationContext, authenticator);</code></pre>
 </div>
 </div>
 </div>
@@ -594,7 +595,7 @@ webAuthnAuthenticationContextValidator.validate(authenticationContext, authentic
 <div id="footer">
 <div id="footer-text">
 Version 0.6.1-SNAPSHOT<br>
-Last updated 2018-06-08 15:58:18 +00:00
+Last updated 2018-06-08 16:06:07 +00:00
 </div>
 </div>
 </body>
