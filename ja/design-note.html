@@ -5,7 +5,7 @@
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.6.1">
-<title>WebAuthn4J Reference</title>
+<title>デザインノート</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | http://asciidoctor.org */
@@ -428,20 +428,12 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="book toc2 toc-left">
 <div id="header">
-<h1>WebAuthn4J Reference</h1>
-<div class="details">
-<span id="revnumber">version 0.6.6-SNAPSHOT</span>
-</div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#導入">導入</a>
+<li><a href="#デザインノート">デザインノート</a>
 <ul class="sectlevel2">
-<li><a href="#web-authenticationとは">Web Authenticationとは</a></li>
-<li><a href="#webauthn4jとは">WebAuthn4Jとは</a></li>
-<li><a href="#要件">要件</a></li>
-<li><a href="#ソースコード">ソースコード</a></li>
-<li><a href="#ライセンス">ライセンス</a></li>
+<li><a href="#各クラスの責務分担">各クラスの責務分担</a></li>
 </ul>
 </li>
 </ul>
@@ -449,83 +441,25 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="導入"><a class="anchor" href="#導入"></a>導入</h2>
+<h2 id="デザインノート"><a class="anchor" href="#デザインノート"></a>デザインノート</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="web-authenticationとは"><a class="anchor" href="#web-authenticationとは"></a>Web Authenticationとは</h3>
-<div class="paragraph">
-<p>Web Authenticationは、W3Cで仕様策定が進められている、Webアプリケーションの新しいセキュアな認証方式仕様です。
-ローカル認証や公開鍵認証、Origin別の鍵管理を組み合わせることで、フィッシングなど認証プロセスに対する攻撃に対して堅固な認証を実現しています。
-主要ブラウザでの実装が進みつつあり、セキュリティ、利便性を重視するユーザーに対して優れた選択肢を提供します。
-当初はFIDO AllianceでFIDO2.0の一部として仕様策定が進められていましたが、現在はW3Cに移管され、仕様策定が行われています。</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="webauthn4jとは"><a class="anchor" href="#webauthn4jとは"></a>WebAuthn4Jとは</h3>
-<div class="paragraph">
-<p>Web Authentication仕様に基づくアサーションの検証を行うためのポータブルなJavaライブラリです。
-元々はSpring Security WebAuthnの一部として開発を進めていましたが、より多くのアプリケーションに対してWeb Authentication仕様に
-基づく認証機能を提供するためにSpring Security WebAuthnからアサーションの検証に関するコアを切り出して依存関係を最小化しました。</p>
-</div>
+<h3 id="各クラスの責務分担"><a class="anchor" href="#各クラスの責務分担"></a>各クラスの責務分担</h3>
 <div class="sect3">
-<h4 id="サポートする証言ステートメントフォーマット"><a class="anchor" href="#サポートする証言ステートメントフォーマット"></a>サポートする証言ステートメントフォーマット</h4>
+<h4 id="code-registry-code"><a class="anchor" href="#code-registry-code"></a><code>Registry</code></h4>
 <div class="paragraph">
-<p>Spring Security WebAuthnが現在サポートする証言ステートメントフォーマットは以下の通りです。</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>None Attestation Statement Format</p>
-</li>
-<li>
-<p>FIDO-U2F Attestation Statement Format</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>それ以外の証言ステートメントフォーマットのサポートも順次行う予定です。</p>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="要件"><a class="anchor" href="#要件"></a>要件</h3>
-<div class="sect3">
-<h4 id="言語"><a class="anchor" href="#言語"></a>言語</h4>
-<div class="ulist">
-<ul>
-<li>
-<p>Java8以降</p>
-</li>
-</ul>
+<p>ObjectMapperなど、外部からインスタンスを登録したい対象を登録するクラス</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="動作環境"><a class="anchor" href="#動作環境"></a>動作環境</h4>
-<div class="ulist">
-<ul>
-<li>
-<p>SecureContext（サイトがHTTPS接続か、localhost）</p>
-</li>
-</ul>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="ソースコード"><a class="anchor" href="#ソースコード"></a>ソースコード</h3>
+<h4 id="code-serverproperty-code"><a class="anchor" href="#code-serverproperty-code"></a><code>ServerProperty</code></h4>
 <div class="paragraph">
-<p>ソースコードは <a href="https://github.com/webauthn4j/webauthn4j">Github</a> で管理されています。</p>
+<p>バリデーション実施にあたり、サーバー側で関係するプロパティを渡すためのDTO</p>
 </div>
-<div class="listingblock">
-<div class="content">
-<pre>git clone git@github.com:webauthn4j/webauthn4j.git</pre>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="ライセンス"><a class="anchor" href="#ライセンス"></a>ライセンス</h3>
 <div class="paragraph">
-<p>WebAuthn4jは <a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache 2.0 license</a> ライセンスの
-オープンソースソフトウェアです。</p>
+<p>なお、各Validatorクラスの動作のカスタマイズオプションは、各Validatorクラスにオプション用のフィールドを設けて行う。
+一括設定用のクラスは設けない</p>
+</div>
 </div>
 </div>
 </div>
