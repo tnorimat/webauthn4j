@@ -5,7 +5,7 @@
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.6.1">
-<title>設定</title>
+<title>クイックスタート</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | http://asciidoctor.org */
@@ -431,11 +431,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#設定">設定</a>
-<ul class="sectlevel4">
-<li><a href="#構成証明ステートメントの検証">構成証明ステートメントの検証</a></li>
-<li><a href="#構成証明ステートメントの信頼性の検証">構成証明ステートメントの信頼性の検証</a></li>
-<li><a href="#fidometadataservicecertpathtrustworthinessvalidator">FIDOMetadataServiceCertPathTrustworthinessValidator</a></li>
+<li><a href="#クイックスタート">クイックスタート</a>
+<ul class="sectlevel2">
+<li><a href="#構成証明の検証">構成証明の検証</a></li>
+<li><a href="#認証証明の検証">認証証明の検証</a></li>
 </ul>
 </li>
 </ul>
@@ -443,39 +442,71 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="設定"><a class="anchor" href="#設定"></a>設定</h2>
+<h2 id="クイックスタート"><a class="anchor" href="#クイックスタート"></a>クイックスタート</h2>
 <div class="sectionbody">
-<div class="sect4">
-<h5 id="構成証明ステートメントの検証"><a class="anchor" href="#構成証明ステートメントの検証"></a>構成証明ステートメントの検証</h5>
+<div class="sect2">
+<h3 id="構成証明の検証"><a class="anchor" href="#構成証明の検証"></a>構成証明の検証</h3>
 <div class="paragraph">
-<p>WebAuthn4Jでは、<code>WebAuthnRegistrationContextValidator</code> が認証デバイスの登録要求の検証を行いますが、
-取得した構成証明ステートメントの署名と信頼性の検証は、それぞれ <code>AttestationStatementValidator</code> と
-<code>CertPathTrustworthinessValidator</code> インタフェースの実装に委譲します。</p>
+<p>認証デバイスの登録時に構成証明を検証するためには、 <code>WebAuthnRegistrationContextValidator#validate</code> を呼び出します。</p>
 </div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-java" data-lang="java">// Client properties
+byte[] clientDataJSON    = null /* set clientDataJSON */;
+byte[] attestationObject = null /* set attestationObject */;
+
+// Server properties
+Origin origin          = null /* set origin */;
+String rpId            = null /* set rpId */;
+Challenge challenge    = null /* set challenge */;
+byte[] tokenBindingId  = null /* set tokenBindingId */;
+ServerProperty serverProperty = new ServerProperty(origin, rpId, challenge, tokenBindingId);
+
+WebAuthnRegistrationContext registrationContext = new WebAuthnRegistrationContext(clientDataJSON, attestationObject, serverProperty, false);
+
+WebAuthnRegistrationContextValidator webAuthnRegistrationContextValidator =
+        WebAuthnRegistrationContextValidator.createNullAttestationStatementValidator();
+
+webAuthnRegistrationContextValidator.validate(registrationContext);</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="認証証明の検証"><a class="anchor" href="#認証証明の検証"></a>認証証明の検証</h3>
 <div class="paragraph">
-<p>厳密な構成証明ステートメントの検証を必要としないサイト向けに、<code>AttestationStatementValidator</code> と
-<code>CertPathTrustworthinessValidator</code> を構成した <code>WebAuthnRegistrationContextValidator</code> のインスタンスは、
-<code>WebAuthnRegistrationContextValidator.createNonStrictRegistrationContextValidator</code> ファクトリメソッドで作成出来ます。</p>
+<p>認証時に認証証明を検証するためには、 <code>WebAuthnAuthenticationContextValidator#validate</code> を呼び出します。</p>
 </div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-java" data-lang="java">// Client properties
+byte[] credentialId      = null /* set credentialId */;
+byte[] clientDataJSON    = null /* set clientDataJSON */;
+byte[] authenticatorData = null /* set authenticatorData */;
+byte[] signature = null /* set signature */;
+
+// Server properties
+Origin origin          = null /* set origin */;
+String rpId            = null /* set rpId */;
+Challenge challenge    = null /* set challenge */;
+byte[] tokenBindingId  = null /* set tokenBindingId */;
+ServerProperty serverProperty = new ServerProperty(origin, rpId, challenge, tokenBindingId);
+
+WebAuthnAuthenticationContext authenticationContext =
+        new WebAuthnAuthenticationContext(
+                credentialId,
+                clientDataJSON,
+                authenticatorData,
+                signature,
+                serverProperty,
+                true
+        );
+Authenticator authenticator = null /* set authenticator */;
+
+WebAuthnAuthenticationContextValidator webAuthnAuthenticationContextValidator =
+        new WebAuthnAuthenticationContextValidator();
+
+webAuthnAuthenticationContextValidator.validate(authenticationContext, authenticator);</code></pre>
 </div>
-<div class="sect4">
-<h5 id="構成証明ステートメントの信頼性の検証"><a class="anchor" href="#構成証明ステートメントの信頼性の検証"></a>構成証明ステートメントの信頼性の検証</h5>
-<div class="paragraph">
-<p>信頼の検証は、構成証明ステートメントが自己署名か、ECDAAか、それ以外かによって方法が異なり、
-Spring Security WebAuthnではそれぞれの検証手段のインタフェースとして <code>SelfAttestationTrustworthinessValidator</code> 、
-<code>ECDAATrustworthinessValidator</code> 、 <code>CertPathTrustworthinessValidator</code> を用意しています。</p>
-</div>
-<div class="paragraph">
-<p><code>CertPathTrustworthinessValidator</code> が証明書パスに基づいて構成証明ステートメントを検証する際、WebAuthn4Jは
-<code>TrustAnchorProvider</code> インタフェースの実装を用いてトラスト・アンカーを取得します。</p>
-</div>
-</div>
-<div class="sect4">
-<h5 id="fidometadataservicecertpathtrustworthinessvalidator"><a class="anchor" href="#fidometadataservicecertpathtrustworthinessvalidator"></a>FIDOMetadataServiceCertPathTrustworthinessValidator</h5>
-<div class="paragraph">
-<p><code>FIDOMetadataServiceCertPathTrustworthinessValidator</code> は <code>CertPathTrustworthinessValidator</code> インタフェースを実装した
-クラスで、FIDO Metadata Serviceで公開されている証明書をトラストアンカーに構成証明証明書の信頼を検証します。
-更に、FIDO Metadata Serviceから得られた各構成証明証明書のStatus Reportを元に検証を行います。</p>
 </div>
 </div>
 </div>
