@@ -442,6 +442,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#requirements">Requirements</a></li>
 <li><a href="#source-code">Source code</a></li>
 <li><a href="#license">License</a></li>
+<li><a href="#contributing">Contributing</a></li>
 </ul>
 </li>
 <li><a href="#quick-start">Quick Start</a>
@@ -470,7 +471,7 @@ Initially, the specification was developed as FIDO 2.0 by the FIDO Alliance, but
 <div class="sect2">
 <h3 id="webauthn4j"><a class="anchor" href="#webauthn4j"></a>WebAuthn4J</h3>
 <div class="paragraph">
-<p>WebAuthn4J is a portable Java library for WebAuthn assertion and attestation verification</p>
+<p>WebAuthn4J is a portable Java library for WebAuthn server side verification</p>
 </div>
 <div class="sect3">
 <h4 id="supported-attestation-statement-formats"><a class="anchor" href="#supported-attestation-statement-formats"></a>Supported Attestation Statement Formats</h4>
@@ -480,15 +481,31 @@ Initially, the specification was developed as FIDO 2.0 by the FIDO Alliance, but
 <div class="ulist">
 <ul>
 <li>
-<p>None Attestation Statement Format</p>
+<p>Packed attestation</p>
 </li>
 <li>
-<p>FIDO-U2F Attestation Statement Format</p>
+<p>FIDO U2F attestation</p>
+</li>
+<li>
+<p>Android Key attestation</p>
+</li>
+<li>
+<p>Android SafetyNet attestation</p>
+</li>
+<li>
+<p>TPM attestation</p>
+</li>
+<li>
+<p>None attestation</p>
 </li>
 </ul>
 </div>
+</div>
+<div class="sect3">
+<h4 id="conformance"><a class="anchor" href="#conformance"></a>Conformance</h4>
 <div class="paragraph">
-<p>Other attestation statement formats are also planed to support.</p>
+<p>All mandatory test cases and optional Android Key attestation test cases of <a href="https://fidoalliance.org/certification/functional-certification/conformance/">FIDO2 Test Tools provided by FIDO Alliance</a>
+are all passed.</p>
 </div>
 </div>
 </div>
@@ -532,6 +549,14 @@ Initially, the specification was developed as FIDO 2.0 by the FIDO Alliance, but
 <p>WebAuthn4J is an open source software licensed under <a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache 2.0 license</a>.</p>
 </div>
 </div>
+<div class="sect2">
+<h3 id="contributing"><a class="anchor" href="#contributing"></a>Contributing</h3>
+<div class="paragraph">
+<p>Interested in helping out with WebAuthn4J? Great! Note that you do not have to be a developer in order to contribute to
+WebAuthn4J. We need folks to help with documentation. Developers, of course, are also welcome.
+Please feel free to open issues and send pull-requests.</p>
+</div>
+</div>
 </div>
 </div>
 <div class="sect1">
@@ -557,10 +582,24 @@ ServerProperty serverProperty = new ServerProperty(origin, rpId, challenge, toke
 
 WebAuthnRegistrationContext registrationContext = new WebAuthnRegistrationContext(clientDataJSON, attestationObject, serverProperty, false);
 
+// WebAuthnRegistrationContextValidator.createNonStrictRegistrationContextValidator() returns a WebAuthnRegistrationContextValidator instance
+// which doesn't validate an attestation statement. It is recommended configuration for most web application.
+// If you are building enterprise web application and need to validate the attestation statement, use the constructor of
+// WebAuthnRegistrationContextValidator and provide validators you like
 WebAuthnRegistrationContextValidator webAuthnRegistrationContextValidator =
-        WebAuthnRegistrationContextValidator.createNullAttestationStatementValidator();
+        WebAuthnRegistrationContextValidator.createNonStrictRegistrationContextValidator();
 
-webAuthnRegistrationContextValidator.validate(registrationContext);</code></pre>
+
+WebAuthnRegistrationContextValidationResponse response = webAuthnRegistrationContextValidator.validate(registrationContext);
+
+// please persist Authenticator object, which will be used in the authentication process.
+Authenticator authenticator =
+        new AuthenticatorImpl( // You may create your own Authenticator implementation to save friendly authenticator name
+                response.getAttestationObject().getAuthenticatorData().getAttestedCredentialData(),
+                response.getAttestationObject().getAttestationStatement(),
+                response.getAttestationObject().getAuthenticatorData().getSignCount()
+        );
+save(authenticator); // please persist authenticator in your manner</code></pre>
 </div>
 </div>
 </div>
@@ -593,12 +632,19 @@ WebAuthnAuthenticationContext authenticationContext =
                 serverProperty,
                 true
         );
-Authenticator authenticator = null /* set authenticator */;
+
+Authenticator authenticator = load(); // please load authenticator object persisted in the registration process in your manner
 
 WebAuthnAuthenticationContextValidator webAuthnAuthenticationContextValidator =
         new WebAuthnAuthenticationContextValidator();
 
-webAuthnAuthenticationContextValidator.validate(authenticationContext, authenticator);</code></pre>
+WebAuthnAuthenticationContextValidationResponse response = webAuthnAuthenticationContextValidator.validate(authenticationContext, authenticator);
+
+// please update the counter of the authenticator record
+updateCounter(
+        response.getAuthenticatorData().getAttestedCredentialData().getCredentialId(),
+        response.getAuthenticatorData().getSignCount()
+);</code></pre>
 </div>
 </div>
 </div>
@@ -608,7 +654,7 @@ webAuthnAuthenticationContextValidator.validate(authenticationContext, authentic
 <div id="footer">
 <div id="footer-text">
 Version 0.7.0-SNAPSHOT<br>
-Last updated 2019-01-25 18:03:15 UTC
+Last updated 2019-01-26 01:59:34 UTC
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">

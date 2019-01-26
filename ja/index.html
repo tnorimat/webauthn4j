@@ -442,6 +442,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#要件">要件</a></li>
 <li><a href="#ソースコード">ソースコード</a></li>
 <li><a href="#ライセンス">ライセンス</a></li>
+<li><a href="#開発への参加">開発への参加</a></li>
 </ul>
 </li>
 <li><a href="#クイックスタート">クイックスタート</a>
@@ -476,7 +477,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sect2">
 <h3 id="webauthn4jとは"><a class="anchor" href="#webauthn4jとは"></a>WebAuthn4Jとは</h3>
 <div class="paragraph">
-<p>Web Authentication仕様に基づくアサーションの検証を行うためのポータブルなJavaライブラリです。
+<p>Web Authentication仕様に基づくサーバーサイド検証を行うためのポータブルなJavaライブラリです。
 元々はSpring Security WebAuthnの一部として開発を進めていましたが、より多くのアプリケーションに対してWeb Authentication仕様に
 基づく認証機能を提供するためにSpring Security WebAuthnからアサーションの検証に関するコアを切り出して依存関係を最小化しました。</p>
 </div>
@@ -488,15 +489,44 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="ulist">
 <ul>
 <li>
-<p>None Attestation Statement Format</p>
+<p>Packed attestation</p>
 </li>
 <li>
-<p>FIDO-U2F Attestation Statement Format</p>
+<p>FIDO U2F attestation</p>
+</li>
+<li>
+<p>Android Key attestation</p>
+</li>
+<li>
+<p>Android SafetyNet attestation</p>
+</li>
+<li>
+<p>TPM attestation</p>
+</li>
+<li>
+<p>None attestation</p>
 </li>
 </ul>
 </div>
+</div>
+<div class="sect3">
+<h4 id="準拠状況"><a class="anchor" href="#準拠状況"></a>準拠状況</h4>
 <div class="paragraph">
-<p>それ以外の証言ステートメントフォーマットのサポートも順次行う予定です。</p>
+<p><a href="https://fidoalliance.org/certification/functional-certification/conformance/">FIDO Allianceが提供するFIDO2 Test Tools</a>
+で必須のテストケースに加え、オプションのAndroid Key attestationのテストケースを全て合格しています。</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+WebAuthn4Jを利用して開発されているSpring Security WebAuthnがFIDO Serverインタフェースを提供しており、
+Spring Security WebAuthnのFIDO Serverインタフェースに対してFIDO2 test toolsを実行して検証を行っています。
+</td>
+</tr>
+</table>
 </div>
 </div>
 </div>
@@ -541,6 +571,14 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 オープンソースソフトウェアです。</p>
 </div>
 </div>
+<div class="sect2">
+<h3 id="開発への参加"><a class="anchor" href="#開発への参加"></a>開発への参加</h3>
+<div class="paragraph">
+<p>WebAuthn4Jに興味を持って頂きありがとうございます。WebAuthn4Jの開発に参加するには、必ずしも開発者である必要はありません。
+ドキュメンテーションに関する協力者も必要としています。　開発への参加も、勿論歓迎です。
+お気軽にIssueやPull Requestをお寄せ下さい。</p>
+</div>
+</div>
 </div>
 </div>
 <div class="sect1">
@@ -566,10 +604,24 @@ ServerProperty serverProperty = new ServerProperty(origin, rpId, challenge, toke
 
 WebAuthnRegistrationContext registrationContext = new WebAuthnRegistrationContext(clientDataJSON, attestationObject, serverProperty, false);
 
+// WebAuthnRegistrationContextValidator.createNonStrictRegistrationContextValidator() は 構成証明ステートメントを
+// 検証しないWebAuthnRegistrationContextValidator インスタンスを返却します。これは大多数のWebアプリケーションに推奨の構成です。
+// エンタープライズ用途のWebアプリケーションで構成証明ステートメントの検証が必要な場合はWebAuthnRegistrationContextValidatorの
+// コンストラクタを使用し、使いたいvalidatorを指定してください
 WebAuthnRegistrationContextValidator webAuthnRegistrationContextValidator =
-        WebAuthnRegistrationContextValidator.createNullAttestationStatementValidator();
+        WebAuthnRegistrationContextValidator.createNonStrictRegistrationContextValidator();
 
-webAuthnRegistrationContextValidator.validate(registrationContext);</code></pre>
+
+WebAuthnRegistrationContextValidationResponse response = webAuthnRegistrationContextValidator.validate(registrationContext);
+
+// アプリケーションの作法に則り、Authenticatorオブジェクトを永続化してください。認証時に使用されます。
+Authenticator authenticator =
+        new AuthenticatorImpl( // You may create your own Authenticator implementation to save friendly authenticator name
+                response.getAttestationObject().getAuthenticatorData().getAttestedCredentialData(),
+                response.getAttestationObject().getAttestationStatement(),
+                response.getAttestationObject().getAuthenticatorData().getSignCount()
+        );
+save(authenticator); // アプリケーションの作法に則った、Authenticatorオブジェクトの永続化</code></pre>
 </div>
 </div>
 </div>
@@ -602,12 +654,19 @@ WebAuthnAuthenticationContext authenticationContext =
                 serverProperty,
                 true
         );
-Authenticator authenticator = null /* set authenticator */;
+
+Authenticator authenticator = load(); // 登録時に永続化したauthenticatorオブジェクトを読込
 
 WebAuthnAuthenticationContextValidator webAuthnAuthenticationContextValidator =
         new WebAuthnAuthenticationContextValidator();
 
-webAuthnAuthenticationContextValidator.validate(authenticationContext, authenticator);</code></pre>
+WebAuthnAuthenticationContextValidationResponse response = webAuthnAuthenticationContextValidator.validate(authenticationContext, authenticator);
+
+// authenticatorのカウンタを更新
+updateCounter(
+        response.getAuthenticatorData().getAttestedCredentialData().getCredentialId(),
+        response.getAuthenticatorData().getSignCount()
+);</code></pre>
 </div>
 </div>
 </div>
@@ -655,7 +714,7 @@ Spring Security WebAuthnではそれぞれの検証手段のインタフェー�
 <div id="footer">
 <div id="footer-text">
 Version 0.7.0-SNAPSHOT<br>
-Last updated 2019-01-25 18:03:15 UTC
+Last updated 2019-01-26 01:59:34 UTC
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">
