@@ -435,6 +435,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <ul class="sectlevel2">
 <li><a href="#web-authenticationとは">Web Authenticationとは</a></li>
 <li><a href="#webauthn4jとは">WebAuthn4Jとは</a></li>
+<li><a href="#特徴">特徴</a></li>
 <li><a href="#要件">要件</a></li>
 <li><a href="#動作環境">動作環境</a></li>
 <li><a href="#maven-centralからの取得">Maven Centralからの取得</a></li>
@@ -466,6 +467,9 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 元々はSpring Security WebAuthnの一部として開発を進めていましたが、より多くのアプリケーションに対してWeb Authentication仕様に
 基づく認証機能を提供するためにSpring Security WebAuthnからアサーションの検証に関するコアを切り出して依存関係を最小化しました。</p>
 </div>
+</div>
+<div class="sect2">
+<h3 id="特徴"><a class="anchor" href="#特徴"></a>特徴</h3>
 <div class="sect3">
 <h4 id="サポートする証言ステートメントフォーマット"><a class="anchor" href="#サポートする証言ステートメントフォーマット"></a>サポートする証言ステートメントフォーマット</h4>
 <div class="paragraph">
@@ -512,6 +516,13 @@ Spring Security WebAuthnのFIDO Serverインタフェースに対してFIDO2 tes
 </td>
 </tr>
 </table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="ポータビリティ"><a class="anchor" href="#ポータビリティ"></a>ポータビリティ</h4>
+<div class="paragraph">
+<p>WebAuthn4JはSLF4JとJacksonにのみ依存しており、非常に高いポータビリティを持っています。
+あなたのJavaアプリへの導入の障害は殆どないでしょう。</p>
 </div>
 </div>
 </div>
@@ -596,7 +607,7 @@ Spring Security WebAuthnのFIDO Serverインタフェースに対してFIDO2 tes
 <div id="footer">
 <div id="footer-text">
 Version 0.7.0-SNAPSHOT<br>
-Last updated 2019-01-28 10:36:11 UTC
+Last updated 2019-01-28 14:50:24 UTC
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">

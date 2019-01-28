@@ -432,10 +432,11 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
 <li><a href="#設定">設定</a>
-<ul class="sectlevel4">
+<ul class="sectlevel3">
 <li><a href="#構成証明ステートメントの検証">構成証明ステートメントの検証</a></li>
-<li><a href="#構成証明ステートメントの信頼性の検証">構成証明ステートメントの信頼性の検証</a></li>
-<li><a href="#fidometadataservicecertpathtrustworthinessvalidator">FIDOMetadataServiceCertPathTrustworthinessValidator</a></li>
+<li><a href="#認証デバイス">認証デバイス</a></li>
+<li><a href="#relyingpartyとしての構成">RelyingPartyとしての構成</a></li>
+<li><a href="#ログ">ログ</a></li>
 </ul>
 </li>
 </ul>
@@ -445,8 +446,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sect1">
 <h2 id="設定"><a class="anchor" href="#設定"></a>設定</h2>
 <div class="sectionbody">
-<div class="sect4">
-<h5 id="構成証明ステートメントの検証"><a class="anchor" href="#構成証明ステートメントの検証"></a>構成証明ステートメントの検証</h5>
+<div class="sect3">
+<h4 id="構成証明ステートメントの検証"><a class="anchor" href="#構成証明ステートメントの検証"></a>構成証明ステートメントの検証</h4>
 <div class="paragraph">
 <p>WebAuthn4Jでは、<code>WebAuthnRegistrationContextValidator</code> が認証デバイスの登録要求の検証を行いますが、
 取得した構成証明ステートメントの署名と信頼性の検証は、それぞれ <code>AttestationStatementValidator</code> と
@@ -456,7 +457,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>厳密な構成証明ステートメントの検証を必要としないサイト向けに、<code>AttestationStatementValidator</code> と
 <code>CertPathTrustworthinessValidator</code> を構成した <code>WebAuthnRegistrationContextValidator</code> のインスタンスは、
 <code>WebAuthnRegistrationContextValidator.createNonStrictRegistrationContextValidator</code> ファクトリメソッドで作成出来ます。</p>
-</div>
 </div>
 <div class="sect4">
 <h5 id="構成証明ステートメントの信頼性の検証"><a class="anchor" href="#構成証明ステートメントの信頼性の検証"></a>構成証明ステートメントの信頼性の検証</h5>
@@ -479,12 +479,33 @@ Spring Security WebAuthnではそれぞれの検証手段のインタフェー�
 </div>
 </div>
 </div>
+<div class="sect3">
+<h4 id="認証デバイス"><a class="anchor" href="#認証デバイス"></a>認証デバイス</h4>
+<div class="paragraph">
+<p>認証デバイスは`Authenticator`インタフェースの実装として表現されます。
+認証時に`Authenticator`インタフェースを実装したクラスが必要です。</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="relyingpartyとしての構成"><a class="anchor" href="#relyingpartyとしての構成"></a>RelyingPartyとしての構成</h4>
+<div class="paragraph">
+<p>作成する資格情報のスコープを決定するrpIdなど、RelyingPartyとしての構成はServerPropertyクラスによって表現されます。</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="ログ"><a class="anchor" href="#ログ"></a>ログ</h3>
+<div class="paragraph">
+<p>WebAuthn4JはSLF4Jをログインタフェースライブラリとして使用します。
+Logbackなどログ実装ライブラリを構成し、ログをお好みのスタイルで出力してください。</p>
+</div>
+</div>
+</div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
 Version 0.7.0-SNAPSHOT<br>
-Last updated 2019-01-28 10:36:11 UTC
+Last updated 2019-01-28 14:50:24 UTC
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">
