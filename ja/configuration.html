@@ -434,8 +434,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#設定">設定</a>
 <ul class="sectlevel3">
 <li><a href="#構成証明ステートメントの検証">構成証明ステートメントの検証</a></li>
-<li><a href="#認証デバイス">認証デバイス</a></li>
-<li><a href="#relyingpartyとしての構成">RelyingPartyとしての構成</a></li>
+<li><a href="#サーバー側構成の表現">サーバー側構成の表現</a></li>
+<li><a href="#認証デバイスの表現">認証デバイスの表現</a></li>
 </ul>
 </li>
 </ul>
@@ -473,7 +473,12 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sect3">
 <h4 id="構成証明ステートメントの検証"><a class="anchor" href="#構成証明ステートメントの検証"></a>構成証明ステートメントの検証</h4>
 <div class="paragraph">
-<p>構成証明ステートメントの検証</p>
+<p>構成証明ステートメントの検証は、 <code>AttestationStatementValidator</code> インタフェースの実装クラスが提供します。
+構成照明ステートメント毎に、対応する実装クラスが提供されていますので、必要なValidatorからなるListを
+<code>WebAuthnRegistrationContextValidator</code> クラスのコンストラクタに指定して下さい。
+例えば、 <code>packed</code> のみをサポートする場合は、 <code>PackedAttestationStatementValidator</code> を唯一の要素とするListとし、
+例えば、 <code>packed</code>, <code>tpm</code> をサポートする場合は、 <code>PackedAttestationStatementValidator</code> と <code>TPMAttestationStatementValidator</code>
+からなるListを指定して下さい。</p>
 </div>
 <div class="sect4">
 <h5 id="構成証明ステートメントの信頼性の検証"><a class="anchor" href="#構成証明ステートメントの信頼性の検証"></a>構成証明ステートメントの信頼性の検証</h5>
@@ -488,16 +493,21 @@ WebAuthn4Jはいくつか <code>CertPathTrustworthinessValidator</code> イン�
 </div>
 </div>
 <div class="sect3">
-<h4 id="認証デバイス"><a class="anchor" href="#認証デバイス"></a>認証デバイス</h4>
+<h4 id="サーバー側構成の表現"><a class="anchor" href="#サーバー側構成の表現"></a>サーバー側構成の表現</h4>
 <div class="paragraph">
-<p>認証デバイスは`Authenticator`インタフェースの実装として表現されます。
-認証時に`Authenticator`インタフェースを実装したクラスが必要です。</p>
+<p>作成する資格情報のスコープを決定するrpIdなど、サーバー側の構成は <code>WebAuthnRegistrationContext</code> クラスの
+フィールドである <code>ServerProperty</code> クラスによって表現されます。</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="relyingpartyとしての構成"><a class="anchor" href="#relyingpartyとしての構成"></a>RelyingPartyとしての構成</h4>
+<h4 id="認証デバイスの表現"><a class="anchor" href="#認証デバイスの表現"></a>認証デバイスの表現</h4>
 <div class="paragraph">
-<p>作成する資格情報のスコープを決定するrpIdなど、RelyingPartyとしての構成はServerPropertyクラスによって表現されます。</p>
+<p>認証デバイスを表現するインタフェースとして、 <code>Authenticator</code> インタフェースが存在します。
+登録時に、 <code>WebAuthnRegistrationContextValidationResponse</code> クラスが含む値を用いてAuthenticator インタフェースの
+インスタンスを作成し、アプリケーションの作法に則り永続化してください。認証時の検証に必要となります。
+なお、永続化する際は、credentialIdをキーに永続化すると良いでしょう。
+<code>Authenticator</code> インタフェースの実装クラスを設計する際は、アプリケーションの要件に合わせて拡張すると良いでしょう。
+典型的には、 <code>Authenticator</code> をユーザーが識別するためのfriendly nameの追加などが考えられるでしょう。</p>
 </div>
 </div>
 </div>
@@ -506,7 +516,7 @@ WebAuthn4Jはいくつか <code>CertPathTrustworthinessValidator</code> イン�
 <div id="footer">
 <div id="footer-text">
 Version 0.7.0-SNAPSHOT<br>
-Last updated 2019-01-30 10:37:17 UTC
+Last updated 2019-01-30 11:32:03 UTC
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">
