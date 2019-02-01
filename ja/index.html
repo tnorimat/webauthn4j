@@ -461,6 +461,16 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#認証デバイスの表現">認証デバイスの表現</a></li>
 </ul>
 </li>
+<li><a href="#詳細">詳細</a>
+<ul class="sectlevel2">
+<li><a href="#project-modules">Project Modules</a></li>
+<li><a href="#request-response">Request/Response</a></li>
+<li><a href="#converter-registry">Converter, Registry</a></li>
+<li><a href="#validator">Validator</a></li>
+<li><a href="#例外クラス">例外クラス</a></li>
+<li><a href="#ログ">ログ</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
@@ -490,7 +500,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sect3">
 <h4 id="サポートする証言ステートメントフォーマット"><a class="anchor" href="#サポートする証言ステートメントフォーマット"></a>サポートする証言ステートメントフォーマット</h4>
 <div class="paragraph">
-<p>Spring Security WebAuthnが現在サポートする証言ステートメントフォーマットは以下の通りです。</p>
+<p>WebAuthn4Jでは、以下の通り全ての証言ステートメントフォーマットをサポートしています。</p>
 </div>
 <div class="ulist">
 <ul>
@@ -623,6 +633,11 @@ Spring Security WebAuthnのFIDO Serverインタフェースに対してFIDO2 tes
 <div class="sect1">
 <h2 id="クイックスタート"><a class="anchor" href="#クイックスタート"></a>クイックスタート</h2>
 <div class="sectionbody">
+<div class="paragraph">
+<p>WebAuthn認証では、前もって認証デバイスで生成した公開鍵をサーバーに登録し、認証時に認証デバイスで生成した
+署名を公開鍵で検証することで認証が成立する認証方式です。登録時にサーバーに送信される公開鍵やデバイスの構成情報を
+含むデータは構成証明（Attestation）と呼ばれ、認証時にサーバーに送信される署名を含んだデータは認証証明（Assertion）と呼ばれます。</p>
+</div>
 <div class="sect2">
 <h3 id="構成証明の検証"><a class="anchor" href="#構成証明の検証"></a>構成証明の検証</h3>
 <div class="paragraph">
@@ -778,8 +793,82 @@ WebAuthn4Jはいくつか <code>CertPathTrustworthinessValidator</code> イン�
 <code>Authenticator</code> インタフェースの実装クラスを設計する際は、アプリケーションの要件に合わせて拡張すると良いでしょう。
 典型的には、 <code>Authenticator</code> をユーザーが識別するためのfriendly nameの追加などが考えられるでしょう。</p>
 </div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="詳細"><a class="anchor" href="#詳細"></a>詳細</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="project-modules"><a class="anchor" href="#project-modules"></a>Project Modules</h3>
+<div class="sect3">
+<h4 id="core-webauthn4j-core-jar"><a class="anchor" href="#core-webauthn4j-core-jar"></a>Core webauthn4j-core.jar</h4>
 <div class="paragraph">
-<p>Unresolved directive in index.adoc - include::dee-dive.adoc[]</p>
+<p>Attestation/Assertionの検証に関わるコア機能を提供します。</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="extras-webauthn4j-extras-jar"><a class="anchor" href="#extras-webauthn4j-extras-jar"></a>Extras webauthn4j-extras.jar</h4>
+<div class="paragraph">
+<p>FIDO Metadata Serviceを用いたTrustAnchorの解決など、追加的な機能を提供します。</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="test-webauthn4j-test-jar"><a class="anchor" href="#test-webauthn4j-test-jar"></a>Test webauthn4j-test.jar</h4>
+<div class="paragraph">
+<p>WebAuthn4Jのテストを行うための内部ライブラリです。含まれているクラスは、Publicであっても、セマンティックバージョニングに従わずに
+設計変更されることがあります。</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="util-webauthn4j-util-jar"><a class="anchor" href="#util-webauthn4j-util-jar"></a>Util webauthn4j-util.jar</h4>
+<div class="paragraph">
+<p>WebAuthn4Jライブラリで使用されるユーティリティクラスをまとめたライブラリです。</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="request-response"><a class="anchor" href="#request-response"></a>Request/Response</h3>
+<div class="paragraph">
+<p><code>com.webauthn4j.request</code>, `com.webauthn4j.request`パッケージ配下のクラスはイミュータブルなDTOとして設計されています。</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="converter-registry"><a class="anchor" href="#converter-registry"></a>Converter, Registry</h3>
+<div class="paragraph">
+<p>リクエスト、レスポンスパッケージ配下のクラスはJacksonによってシリアライズ、デシリアライズ可能なように設計されています。
+一部のクラスはカスタムなシリアライザ、デシリアライザが必要であり、`converter`パッケージ配下に集約されています。
+カスタムシリアライザ、デシリアライザは`WebAuthnModule`にまとめられており、`WebAuthnModule`が適用された
+ObjectMapperインスタンスはRegistryクラスに登録され、WebAuthn4Jの各クラス間で共有されています。
+もしカスタムなシリアライザ、デシリアライザの追加登録が必要な場合は、Registryクラスが保持するObjectMapperに登録しましょう。</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="validator"><a class="anchor" href="#validator"></a>Validator</h3>
+<div class="paragraph">
+<p>資格情報の登録時のバリデーター</p>
+</div>
+<div class="paragraph">
+<p><code>WebAuthnRegistrationContextValidator</code></p>
+</div>
+<div class="paragraph">
+<p>資格情報の認証時のバリデーター</p>
+</div>
+<div class="paragraph">
+<p><code>WebAuthnAuthenticationContextValidator</code></p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="例外クラス"><a class="anchor" href="#例外クラス"></a>例外クラス</h3>
+<div class="paragraph">
+<p>検証に失敗した場合、 <code>ValidationException</code> のサブクラスがスローされます。</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="ログ"><a class="anchor" href="#ログ"></a>ログ</h3>
+<div class="paragraph">
+<p>WebAuthn4JはSLF4Jをログインタフェースライブラリとして使用します。
+Logbackなどログ実装ライブラリを構成し、ログをお好みのスタイルで出力してください。</p>
 </div>
 </div>
 </div>
@@ -788,7 +877,7 @@ WebAuthn4Jはいくつか <code>CertPathTrustworthinessValidator</code> イン�
 <div id="footer">
 <div id="footer-text">
 Version 0.7.0-SNAPSHOT<br>
-Last updated 2019-02-01 10:38:07 UTC
+Last updated 2019-02-01 16:13:01 UTC
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">

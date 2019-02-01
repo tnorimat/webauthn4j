@@ -444,6 +444,11 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sect1">
 <h2 id="クイックスタート"><a class="anchor" href="#クイックスタート"></a>クイックスタート</h2>
 <div class="sectionbody">
+<div class="paragraph">
+<p>WebAuthn認証では、前もって認証デバイスで生成した公開鍵をサーバーに登録し、認証時に認証デバイスで生成した
+署名を公開鍵で検証することで認証が成立する認証方式です。登録時にサーバーに送信される公開鍵やデバイスの構成情報を
+含むデータは構成証明（Attestation）と呼ばれ、認証時にサーバーに送信される署名を含んだデータは認証証明（Assertion）と呼ばれます。</p>
+</div>
 <div class="sect2">
 <h3 id="構成証明の検証"><a class="anchor" href="#構成証明の検証"></a>構成証明の検証</h3>
 <div class="paragraph">
@@ -536,7 +541,7 @@ updateCounter(
 <div id="footer">
 <div id="footer-text">
 Version 0.7.0-SNAPSHOT<br>
-Last updated 2019-02-01 10:38:07 UTC
+Last updated 2019-02-01 16:13:01 UTC
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">
