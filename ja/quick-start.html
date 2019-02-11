@@ -452,7 +452,25 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sect2">
 <h3 id="構成証明の検証"><a class="anchor" href="#構成証明の検証"></a>構成証明の検証</h3>
 <div class="paragraph">
-<p>認証デバイスの登録時に構成証明を検証するためには、 <code>WebAuthnRegistrationContextValidator#validate</code> を呼び出します。</p>
+<p>認証デバイスの登録時に構成証明を検証するためには、 <code>WebAuthnRegistrationContextValidator#validate</code> を呼び出します。
+呼び出す際は、 <code>WebAuthnRegistrationContext</code> のインスタンスを引数に指定する必要があります。
+<code>WebAuthnRegistrationContext</code> のコンストラクタの引数に指定する、 <code>clientDataJSON</code> と <code>attestationObject</code> はフロントエンド側で
+WebAuthn JS APIを実行して取得した値となります。何らかの方法でフロントエンド側からサーバー側に伝送し、指定してください。
+第三パラメータの <code>serverProperty</code> はサーバー側から取得する値をまとめたパラメータです。 <code>ServerProperty</code> のコンストラクタを
+呼び出す際のパラメータには以下の値を指定して下さい。
+<code>origin</code> にはWebAuthnによる認証を提供するサイトのOriginを指定して下さい。WebAuthnでは、ブラウザがブラウザが認識しているOriginを
+ClientDataに書き込んで署名を行います。WebAuthn4Jは書き込まれたOriginが指定されたOriginと合致するかを検証します。
+<code>rpId</code> にはWebAuthnによる認証を提供するサイトのrpIdを指定して下さい。rpIdは資格情報のスコープを指定するパラメータです。
+詳しくは <a href="https://www.w3.org/TR/2019/PR-webauthn-20190117/#relying-party-identifier">WebAuthnの仕様書</a> を参照して下さい。
+<code>challenge</code> はリプレイ攻撃を防ぐ為のパラメータです。サーバー側で <code>challenge</code> としてランダムなバイト列を生成し、
+フロントエンド側でWebAuthn JS APIを実行する際にパラメータとして指定して署名対象に含め、サーバー側で値の一致を検証することで
+リプレイ攻撃から防御することが出来ます。
+<code>challenge</code> には発行したChallengeを指定して下さい。発行したChallengeを検証時まで永続化しておくのはアプリケーション側の責務です。
+セッションなどに格納しておくと良いでしょう。
+<code>tokenBindingId</code> はToken bindingを利用する場合のパラメータです。利用しない場合は <code>null</code> を指定してください。
+検証に失敗した場合は、 <code>ValidationException</code> のサブクラスがthrowされます。
+検証後の資格情報のデータベース等への永続化自体はWebAuthn4Jのスコープ外であり、アプリケーション側の責務となります。
+<code>userVerificationRequired</code> は認証デバイスでのユーザーの本人性確認が必要かどうかを示すパラメータです。</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -493,7 +511,20 @@ save(authenticator); // アプリケーションの作法に則った、Authenti
 <div class="sect2">
 <h3 id="認証証明の検証"><a class="anchor" href="#認証証明の検証"></a>認証証明の検証</h3>
 <div class="paragraph">
-<p>認証時に認証証明を検証するためには、 <code>WebAuthnAuthenticationContextValidator#validate</code> を呼び出します。</p>
+<p>認証時に認証証明を検証するためには、 <code>WebAuthnAuthenticationContextValidator#validate</code> を呼び出します。
+呼び出す際は、 <code>WebAuthnAuthenticationContext</code> と <code>Authenticator</code> のインスタンスを引数に指定する必要があります。
+<code>WebAuthnAuthenticationContext</code> のコンストラクタの引数に指定する、 <code>credentialId</code> と <code>clientDataJSON</code> 、
+<code>authenticatorData</code> 、 <code>signature</code> はフロントエンド側でWebAuthn JS APIを実行して取得した値となります。
+何らかの方法でフロントエンド側からサーバー側に伝送し、指定してください。
+<code>serverProperty</code> はサーバー側から取得する値をまとめたパラメータです。
+<code>userVerificationRequired</code> は認証デバイスでのユーザーの本人性確認が必要かどうかを示すパラメータです。
+タッチボタンのみを備え、認証における「所持」要素のみを提供する認証デバイスとパスワードを組み合わせて
+多要素認証を実現する場合は <code>false</code> で良いでしょうし、認証デバイスによる本人性確認＋「所持」による多要素認証を行う場合は
+<code>true</code> を指定する必要があります。
+検証に失敗した場合は、 <code>ValidationException</code> のサブクラスがthrowされます。
+検証に成功した場合、認証デバイスに紐づけたカウンタの値を更新してください。カウンタは万が一認証デバイスのクローンが
+作成された場合を検知するために用意されています。カウンタについて詳しくは
+<a href="https://www.w3.org/TR/2019/PR-webauthn-20190117/#sign-counter">WebAuthnの仕様書</a> を参照して下さい。</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -541,7 +572,7 @@ updateCounter(
 <div id="footer">
 <div id="footer-text">
 Version 0.7.1-SNAPSHOT<br>
-Last updated 2019-02-11 07:51:41 UTC
+Last updated 2019-02-11 09:32:21 UTC
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">
