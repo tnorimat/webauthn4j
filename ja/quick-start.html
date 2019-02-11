@@ -468,9 +468,9 @@ ClientDataに書き込んで署名を行います。WebAuthn4Jは書き込まれ
 <code>challenge</code> には発行したChallengeを指定して下さい。発行したChallengeを検証時まで永続化しておくのはアプリケーション側の責務です。
 セッションなどに格納しておくと良いでしょう。
 <code>tokenBindingId</code> はToken bindingを利用する場合のパラメータです。利用しない場合は <code>null</code> を指定してください。
+<code>userVerificationRequired</code> は認証デバイスでのユーザーの本人性確認が必要かどうかを示すパラメータです。
 検証に失敗した場合は、 <code>ValidationException</code> のサブクラスがthrowされます。
-検証後の資格情報のデータベース等への永続化自体はWebAuthn4Jのスコープ外であり、アプリケーション側の責務となります。
-<code>userVerificationRequired</code> は認証デバイスでのユーザーの本人性確認が必要かどうかを示すパラメータです。</p>
+検証後の資格情報のデータベース等への永続化自体はWebAuthn4Jのスコープ外であり、アプリケーション側の責務となります。</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -572,7 +572,7 @@ updateCounter(
 <div id="footer">
 <div id="footer-text">
 Version 0.7.1-SNAPSHOT<br>
-Last updated 2019-02-11 09:32:21 UTC
+Last updated 2019-02-11 09:34:22 UTC
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">
