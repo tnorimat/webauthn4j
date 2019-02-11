@@ -478,6 +478,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#chromeのresidentkey対応">ChromeのResidentKey対応</a></li>
 <li><a href="#firefoxのサポート">Firefoxのサポート</a></li>
 <li><a href="#ブラウザ間でのサポート状況の差異">ブラウザ間でのサポート状況の差異</a></li>
+<li><a href="#ecdaaのサポート">ECDAAのサポート</a></li>
+<li><a href="#ps256-ps384-ps512のサポート">PS256、PS384、PS512のサポート</a></li>
 </ul>
 </li>
 </ul>
@@ -669,18 +671,18 @@ WebAuthn JS APIを実行して取得した値となります。何らかの方�
 <ul>
 <li>
 <p><code>origin</code> にはWebAuthnによる認証を提供するサイトのOriginを指定して下さい。WebAuthnでは、ブラウザが認識しているOriginを
-ClientDataに書き込んで署名を行います。WebAuthn4Jは書き込まれたOriginが指定されたOriginと合致するかを検証することで、フィッシング攻撃から防御を行います。</p>
+ClientDataに書き込んで署名を行います。WebAuthn4Jは書き込まれたOriginが指定されたOriginと合致するかを検証することで、
+フィッシング攻撃を防ぎます。</p>
 </li>
 <li>
 <p><code>rpId</code> にはWebAuthnによる認証を提供するサイトのrpIdを指定して下さい。rpIdは資格情報のスコープを指定するパラメータです。
-詳しくは <a href="https://www.w3.org/TR/2019/PR-webauthn-20190117/#relying-party-identifier">WebAuthnの仕様書のrpIdの項</a> を参照して下さい。
-<code>challenge</code> はリプレイ攻撃を防ぐ為のパラメータです。サーバー側で <code>challenge</code> としてランダムなバイト列を生成し、
-フロントエンド側でWebAuthn JS APIを実行する際にパラメータとして指定して署名対象に含め、サーバー側で値の一致を検証することで
-リプレイ攻撃から防御することが出来ます。</p>
+詳しくは <a href="https://www.w3.org/TR/2019/PR-webauthn-20190117/#relying-party-identifier">WebAuthnの仕様書のrpIdの項</a> を参照して下さい。</p>
 </li>
 <li>
-<p><code>challenge</code> には発行したChallengeを指定して下さい。発行したChallengeを検証時まで永続化しておくのはアプリケーション側の責務です。
-セッションなどに格納しておくと良いでしょう。</p>
+<p><code>challenge</code> には発行したChallengeを指定して下さい。<code>challenge</code> はリプレイ攻撃を防ぐ為のパラメータです。
+サーバー側で <code>challenge</code> としてランダムなバイト列を生成し、フロントエンド側でWebAuthn JS APIを実行する際に
+パラメータとして指定して署名対象に含め、サーバー側で値の一致を検証することで、リプレイ攻撃からユーザーを防御することが出来ます。
+発行したChallengeを検証時まで永続化しておくのはアプリケーション側の責務です。セッションなどに格納しておくと良いでしょう。</p>
 </li>
 <li>
 <p><code>tokenBindingId</code> はToken bindingを利用する場合のパラメータです。利用しない場合は <code>null</code> を指定してください。</p>
@@ -691,7 +693,7 @@ ClientDataに書き込んで署名を行います。WebAuthn4Jは書き込まれ
 <p><code>userVerificationRequired</code> は認証デバイスでのユーザーの本人性確認が必要かどうかを示すパラメータです。</p>
 </div>
 <div class="paragraph">
-<p>検証に失敗した場合は、 <code>ValidationException</code> のサブクラスがthrowされます。
+<p>検証に失敗した場合は、 <code>ValidationException</code> のサブクラスの例外が発生します。
 検証に成功した場合は、 <code>WebAuthnRegistrationContextValidationResponse</code> が返却されます。
 返却された値から <code>Authenticator</code> インスタンスを作成し、データベース等へアプリケーション側で永続化して下さい。
 認証時に必要となります。</p>
@@ -751,7 +753,7 @@ save(authenticator); // アプリケーションの作法に則った、Authenti
 <p><code>Authenticator</code> には、登録時に永続化した <code>Authenticator</code> を指定してください。</p>
 </div>
 <div class="paragraph">
-<p>検証に失敗した場合は、 <code>ValidationException</code> のサブクラスがthrowされます。
+<p>検証に失敗した場合は、 <code>ValidationException</code> のサブクラスの例外が発生します。
 検証に成功した場合は、 <code>WebAuthnAuthenticationContextValidationResponse</code> が返却されます。
 <code>Authenticator</code> に紐づけたカウンタの値を更新してください。カウンタは万が一認証デバイスのクローンが
 作成された場合を検知するために用意されています。カウンタについて詳しくは
@@ -805,21 +807,18 @@ updateCounter(
 <div class="paragraph">
 <p>WebAuthn4Jを利用する上で中心となるクラスは2つ存在します。1つは登録時に資格情報を検証する
 <code>WebAuthnRegistrationContextValidator</code> クラスで、もう1つは認証時に資格情報を検証する
-<code>WebAuthnAuthenticationContextValidator</code> クラスです。
-前者の <code>validate</code> メソッドは登録時のコンテキストを表現するWebAuthnRegistrationContextクラスを引数に持ち、
-検証に成功した場合、<code>WebAuthnRegistrationContextValidationResponse</code> クラスを返却します。
-後者の <code>validate</code> メソッドは認証時のコンテキストを表現するWebAuthnAuthenticationContextクラスを引数に持ち、
-検証に成功した場合、<code>WebAuthnAuthenticationContextValidationResponse</code> クラスを返却します。
-両者とも、検証に失敗した場合は、<code>ValidationException</code> クラスのサブクラスの例外をスローします。</p>
+<code>WebAuthnAuthenticationContextValidator</code> クラスです。</p>
 </div>
 <div class="paragraph">
 <p><code>WebAuthnRegistrationContextValidator</code> は構成証明ステートメントの署名と信頼性の検証は、
 それぞれ <code>AttestationStatementValidator</code> と <code>CertPathTrustworthinessValidator</code> インタフェースの実装に委譲します。</p>
 </div>
 <div class="paragraph">
-<p>厳密な構成証明ステートメントの検証を必要としないサイト向けに、<code>AttestationStatementValidator</code> と
-<code>CertPathTrustworthinessValidator</code> を構成した <code>WebAuthnRegistrationContextValidator</code> のインスタンスは、
-<code>WebAuthnRegistrationContextValidator.createNonStrictRegistrationContextValidator</code> ファクトリメソッドで作成出来ます。</p>
+<p>大多数のサイトは厳密な構成証明ステートメントの検証を必要としないでしょうから（
+<a href="https://www.w3.org/TR/2019/PR-webauthn-20190117/#sctn-no-attestation-security-attestation">WebAuthn仕様書関連個所参照</a> ）、
+WebAuthn4Jでは構成証明ステートメントの検証をしないように <code>AttestationStatementValidator</code> と
+<code>CertPathTrustworthinessValidator</code> を構成した <code>WebAuthnRegistrationContextValidator</code> のインスタンスを返却する
+<code>WebAuthnRegistrationContextValidator.createNonStrictRegistrationContextValidator</code> ファクトリメソッドを用意しています。</p>
 </div>
 <div class="paragraph">
 <p>もし、エンタープライズなユースケースで、認証デバイスの厳密な検証が要件である場合は、
@@ -852,7 +851,7 @@ WebAuthn4Jはいくつか <code>CertPathTrustworthinessValidator</code> イン�
 <div class="sect3">
 <h4 id="サーバー側構成の表現"><a class="anchor" href="#サーバー側構成の表現"></a>サーバー側構成の表現</h4>
 <div class="paragraph">
-<p>作成する資格情報のスコープを決定するrpIdなど、サーバー側の構成は <code>WebAuthnRegistrationContext</code> クラスの
+<p>作成する資格情報のスコープを決定する <code>rpId</code> など、サーバー側の構成は <code>WebAuthnRegistrationContext</code> クラスの
 フィールドである <code>ServerProperty</code> クラスによって表現されます。</p>
 </div>
 </div>
@@ -860,11 +859,11 @@ WebAuthn4Jはいくつか <code>CertPathTrustworthinessValidator</code> イン�
 <h4 id="認証デバイスの表現"><a class="anchor" href="#認証デバイスの表現"></a>認証デバイスの表現</h4>
 <div class="paragraph">
 <p>認証デバイスを表現するインタフェースとして、 <code>Authenticator</code> インタフェースが存在します。
-登録時に、 <code>WebAuthnRegistrationContextValidationResponse</code> クラスが含む値を用いてAuthenticator インタフェースの
+登録時に、 <code>WebAuthnRegistrationContextValidationResponse</code> クラスが含む値を用いて <code>Authenticator</code> インタフェースの
 インスタンスを作成し、アプリケーションの作法に則り永続化してください。認証時の検証に必要となります。
 なお、永続化する際は、credentialIdをキーに永続化すると良いでしょう。
 <code>Authenticator</code> インタフェースの実装クラスを設計する際は、アプリケーションの要件に合わせて拡張すると良いでしょう。
-典型的には、 <code>Authenticator</code> をユーザーが識別するためのfriendly nameの追加などが考えられるでしょう。</p>
+典型的には、 <code>Authenticator</code> をユーザーが識別するための名前フィールドの追加などが考えられるでしょう。</p>
 </div>
 </div>
 </div>
@@ -997,13 +996,28 @@ ResidentKeyを活用してID入力の省略を実現する場合でも、Chrome�
 Safariユーザーを考慮してWebAuthn以外での二要素認証のサポートを行う、などフォールバック手段の確保に努めましょう。</p>
 </div>
 </div>
+<div class="sect2">
+<h3 id="ecdaaのサポート"><a class="anchor" href="#ecdaaのサポート"></a>ECDAAのサポート</h3>
+<div class="paragraph">
+<p>WebAuthn4JはECDAA(Elliptic Curve based Direct Anonymous Attestation)アルゴリズムをサポートしていません。
+ECDAAアルゴリズムはWebAuthn仕様でオプションとされており、主要ブラウザでもサポートされていない為、当面サポートする予定はありません。</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="ps256-ps384-ps512のサポート"><a class="anchor" href="#ps256-ps384-ps512のサポート"></a>PS256、PS384、PS512のサポート</h3>
+<div class="paragraph">
+<p>WebAuthn4JはPS256、PS384、PS512アルゴリズムをサポートしていません。
+PS256、PS384、PS512アルゴリズムはWebAuthn仕様でオプションとされており、Java Crypto APIでも標準のProviderではサポートされていない為、
+当面サポートする予定はありません。</p>
+</div>
+</div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
 Version 0.7.1-SNAPSHOT<br>
-Last updated 2019-02-11 10:43:00 UTC
+Last updated 2019-02-11 12:04:50 UTC
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">
