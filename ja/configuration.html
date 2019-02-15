@@ -432,7 +432,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
 <li><a href="#設定">設定</a>
-<ul class="sectlevel3">
+<ul class="sectlevel2">
 <li><a href="#構成証明ステートメントの検証">構成証明ステートメントの検証</a></li>
 <li><a href="#認証デバイスの表現">認証デバイスの表現</a></li>
 </ul>
@@ -466,8 +466,8 @@ WebAuthn4Jでは構成証明ステートメントの検証をしないように 
 <code>AttestationStatementValidator</code> と <code>CertPathTrustworthinessValidator</code> の実装をコンストラクタインジェクションして
 構成して下さい。</p>
 </div>
-<div class="sect3">
-<h4 id="構成証明ステートメントの検証"><a class="anchor" href="#構成証明ステートメントの検証"></a>構成証明ステートメントの検証</h4>
+<div class="sect2">
+<h3 id="構成証明ステートメントの検証"><a class="anchor" href="#構成証明ステートメントの検証"></a>構成証明ステートメントの検証</h3>
 <div class="paragraph">
 <p>構成証明ステートメントの検証は、 <code>AttestationStatementValidator</code> インタフェースの実装クラスが提供します。
 構成照明ステートメント毎に、対応する実装クラスが提供されていますので、必要なValidatorからなるListを
@@ -476,8 +476,8 @@ WebAuthn4Jでは構成証明ステートメントの検証をしないように 
 例えば、 <code>packed</code>, <code>tpm</code> をサポートする場合は、 <code>PackedAttestationStatementValidator</code> と <code>TPMAttestationStatementValidator</code>
 からなるListを指定して下さい。</p>
 </div>
-<div class="sect4">
-<h5 id="構成証明ステートメントの信頼性の検証"><a class="anchor" href="#構成証明ステートメントの信頼性の検証"></a>構成証明ステートメントの信頼性の検証</h5>
+<div class="sect3">
+<h4 id="構成証明ステートメントの信頼性の検証"><a class="anchor" href="#構成証明ステートメントの信頼性の検証"></a>構成証明ステートメントの信頼性の検証</h4>
 <div class="paragraph">
 <p>構成証明ステートメント自体の信頼性の検証は、証明書パスの検証、ECDAAによる検証、自己署名のパターンがありますが、
 証明書パスの検証は <code>CertPathTrustworthinessValidator</code> インタフェースの実装に検証を委ね、
@@ -486,10 +486,22 @@ WebAuthn4Jはいくつか <code>CertPathTrustworthinessValidator</code> イン�
 例えば <code>TrustAnchorCertPathTrustworthinessValidator</code> は <code>TrustAnchorResolver</code> インタフェースを通じて取得した
 <code>TrustAnchor</code> をルート証明書として証明書パスの検証を行うことで構成証明ステートメントの信頼性の検証を行います。</p>
 </div>
+<div class="sect4">
+<h5 id="fido-metadata-serviceを用いた構成証明ステートメントの信頼性の検証"><a class="anchor" href="#fido-metadata-serviceを用いた構成証明ステートメントの信頼性の検証"></a>FIDO Metadata Serviceを用いた構成証明ステートメントの信頼性の検証</h5>
+<div class="paragraph">
+<p>FIDO Allianceでは、FIDO Metadata Serviceという、認証デバイスのメタデータを配信するサービスを提供しています。
+このサービスを利用することにより、登録しようとしている認証デバイスで、セキュリティ上の問題が報告されていないか
+チェックすることが可能です。FIDO Metadata Serviceを用いて構成証明ステートメントの信頼性の検証を行う場合、
+<code>CertPathTrustworthinessValidator</code> の実装として <code>MetadataItemListCertPathTrustworthinessValidator</code> を使用して下さい。
+<code>MetadataItemListCertPathTrustworthinessValidator</code> は <code>MetadataItemListResolver</code> インタフェースを通じて認証デバイスの
+AAGUIDに対応する <code>MetadataItem</code> リストを解決しますので、 <code>MetadataItemListResolverImpl</code> と
+<code>FidoMdsMetadataItemListProvider</code> を組み合わせて使うことで、FIDO Metadata Serviceによる信頼性の検証を行うことが可能です。</p>
 </div>
 </div>
-<div class="sect3">
-<h4 id="認証デバイスの表現"><a class="anchor" href="#認証デバイスの表現"></a>認証デバイスの表現</h4>
+</div>
+</div>
+<div class="sect2">
+<h3 id="認証デバイスの表現"><a class="anchor" href="#認証デバイスの表現"></a>認証デバイスの表現</h3>
 <div class="paragraph">
 <p>認証デバイスを表現するインタフェースとして、 <code>Authenticator</code> インタフェースが存在します。
 登録時に、 <code>WebAuthnRegistrationContextValidationResponse</code> クラスが含む値を用いて <code>Authenticator</code> インタフェースの
@@ -505,7 +517,7 @@ WebAuthn4Jはいくつか <code>CertPathTrustworthinessValidator</code> イン�
 <div id="footer">
 <div id="footer-text">
 Version 0.7.1-SNAPSHOT<br>
-Last updated 2019-02-15 14:31:23 UTC
+Last updated 2019-02-15 16:24:05 UTC
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">
