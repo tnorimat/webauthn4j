@@ -434,7 +434,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#設定">設定</a>
 <ul class="sectlevel3">
 <li><a href="#構成証明ステートメントの検証">構成証明ステートメントの検証</a></li>
-<li><a href="#サーバー側構成の表現">サーバー側構成の表現</a></li>
 <li><a href="#認証デバイスの表現">認証デバイスの表現</a></li>
 </ul>
 </li>
@@ -480,20 +479,13 @@ WebAuthn4Jでは構成証明ステートメントの検証をしないように 
 <div class="sect4">
 <h5 id="構成証明ステートメントの信頼性の検証"><a class="anchor" href="#構成証明ステートメントの信頼性の検証"></a>構成証明ステートメントの信頼性の検証</h5>
 <div class="paragraph">
-<p>構成証明ステートメント自体の信頼性の検証は、信頼するルート証明書から連なる証明書パスの検証、
-ECDAAによる検証、自己署名のパターンがありますが、証明書パスの検証は <code>CertPathTrustworthinessValidator</code> インタフェースの実装
-に検証を委ね、 ECDAAの場合は <code>ECDAATrustworthinessValidator</code> インタフェースの実装に検証が委譲されます。
+<p>構成証明ステートメント自体の信頼性の検証は、証明書パスの検証、ECDAAによる検証、自己署名のパターンがありますが、
+証明書パスの検証は <code>CertPathTrustworthinessValidator</code> インタフェースの実装に検証を委ね、
+ECDAAの場合は <code>ECDAATrustworthinessValidator</code> インタフェースの実装に検証が委譲されます。
 WebAuthn4Jはいくつか <code>CertPathTrustworthinessValidator</code> インタフェースの実装を提供しており、
 例えば <code>TrustAnchorCertPathTrustworthinessValidator</code> は <code>TrustAnchorResolver</code> インタフェースを通じて取得した
 <code>TrustAnchor</code> をルート証明書として証明書パスの検証を行うことで構成証明ステートメントの信頼性の検証を行います。</p>
 </div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="サーバー側構成の表現"><a class="anchor" href="#サーバー側構成の表現"></a>サーバー側構成の表現</h4>
-<div class="paragraph">
-<p>作成する資格情報のスコープを決定する <code>rpId</code> など、サーバー側の構成は <code>WebAuthnRegistrationContext</code> クラスの
-フィールドである <code>ServerProperty</code> クラスによって表現されます。</p>
 </div>
 </div>
 <div class="sect3">
@@ -502,7 +494,7 @@ WebAuthn4Jはいくつか <code>CertPathTrustworthinessValidator</code> イン�
 <p>認証デバイスを表現するインタフェースとして、 <code>Authenticator</code> インタフェースが存在します。
 登録時に、 <code>WebAuthnRegistrationContextValidationResponse</code> クラスが含む値を用いて <code>Authenticator</code> インタフェースの
 インスタンスを作成し、アプリケーションの作法に則り永続化してください。認証時の検証に必要となります。
-なお、永続化する際は、credentialIdをキーに永続化すると良いでしょう。
+なお、永続化する際は、検索する際の利便性を考え、credentialIdをキーに永続化すると良いでしょう。
 <code>Authenticator</code> インタフェースの実装クラスを設計する際は、アプリケーションの要件に合わせて拡張すると良いでしょう。
 典型的には、 <code>Authenticator</code> をユーザーが識別するための名前フィールドの追加などが考えられるでしょう。</p>
 </div>
@@ -513,7 +505,7 @@ WebAuthn4Jはいくつか <code>CertPathTrustworthinessValidator</code> イン�
 <div id="footer">
 <div id="footer-text">
 Version 0.7.1-SNAPSHOT<br>
-Last updated 2019-02-15 12:26:19 UTC
+Last updated 2019-02-15 14:31:23 UTC
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">

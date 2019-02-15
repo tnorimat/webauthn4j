@@ -452,7 +452,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sect2">
 <h3 id="構成証明の検証"><a class="anchor" href="#構成証明の検証"></a>構成証明の検証</h3>
 <div class="paragraph">
-<p>認証デバイスの登録時に構成証明を検証するためには、 <code>WebAuthnRegistrationContextValidator#validate</code> を呼び出します。
+<p>認証デバイスの登録時に構成証明を検証する際は、 <code>WebAuthnRegistrationContextValidator#validate</code> を呼び出して下さい。
 呼び出す際は、 <code>WebAuthnRegistrationContext</code> のインスタンスを引数に指定する必要があります。</p>
 </div>
 <div class="paragraph">
@@ -531,15 +531,19 @@ save(authenticator); // アプリケーションの作法に則った、Authenti
 <div class="sect2">
 <h3 id="認証証明の検証"><a class="anchor" href="#認証証明の検証"></a>認証証明の検証</h3>
 <div class="paragraph">
-<p>認証時に認証証明を検証するためには、 <code>WebAuthnAuthenticationContextValidator#validate</code> を呼び出します。
+<p>認証時に認証証明を検証する際は、 <code>WebAuthnAuthenticationContextValidator#validate</code> を呼び出して下さい。
 呼び出す際は、 <code>WebAuthnAuthenticationContext</code> と <code>Authenticator</code> のインスタンスを引数に指定する必要があります。</p>
 </div>
 <div class="paragraph">
 <p><code>WebAuthnAuthenticationContext</code> のコンストラクタの引数に指定する、 <code>credentialId</code> と <code>clientDataJSON</code> 、
 <code>authenticatorData</code> 、 <code>signature</code> にはフロントエンド側でWebAuthn JS APIを実行して取得した値を設定してください。
-何らかの方法でフロントエンド側からサーバー側に伝送し、指定してください。
-<code>serverProperty</code> はサーバー側から取得する値をまとめたパラメータです。
-<code>userVerificationRequired</code> は認証デバイスでのユーザーの本人性確認が必要かどうかを示すパラメータです。
+何らかの方法でフロントエンド側からサーバー側に伝送し、指定してください。</p>
+</div>
+<div class="paragraph">
+<p><code>serverProperty</code> はサーバー側から取得する値をまとめたパラメータです。</p>
+</div>
+<div class="paragraph">
+<p><code>userVerificationRequired</code> は認証デバイスでのユーザーの本人性確認が必要かどうかを示すパラメータです。
 パスワード＋認証デバイスの「所持」による多要素認証を行う場合は、パスワードで本人性の確認が出来ている為 <code>false</code> で良いでしょう。
 パスワードレス認証として、認証デバイスによる本人性確認＋「所持」による多要素認証を行う場合は <code>true</code> を指定する必要があります。</p>
 </div>
@@ -599,7 +603,7 @@ updateCounter(
 <div id="footer">
 <div id="footer-text">
 Version 0.7.1-SNAPSHOT<br>
-Last updated 2019-02-15 12:26:19 UTC
+Last updated 2019-02-15 14:31:23 UTC
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">

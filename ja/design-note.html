@@ -434,6 +434,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#デザインノート">デザインノート</a>
 <ul class="sectlevel2">
 <li><a href="#各クラスの責務分担">各クラスの責務分担</a></li>
+<li><a href="#何故-code-webauthnauthenticationcontext-code-に-code-authenticator-code-を含めないのか">何故 <code>WebAuthnAuthenticationContext</code> に <code>Authenticator</code> を含めないのか</a></li>
 </ul>
 </li>
 </ul>
@@ -462,13 +463,20 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 </div>
+<div class="sect2">
+<h3 id="何故-code-webauthnauthenticationcontext-code-に-code-authenticator-code-を含めないのか"><a class="anchor" href="#何故-code-webauthnauthenticationcontext-code-に-code-authenticator-code-を含めないのか"></a>何故 <code>WebAuthnAuthenticationContext</code> に <code>Authenticator</code> を含めないのか</h3>
+<div class="paragraph">
+<p><code>WebAuthnAuthenticationContext</code> はimmutableなクラスとして設計されていますが、 <code>Authenticator</code> はmutableなクラスとして
+設計されている為、 <code>WebAuthnAuthenticationContext</code> のフィールドとはしていません。</p>
+</div>
+</div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
 Version 0.7.1-SNAPSHOT<br>
-Last updated 2019-02-15 12:26:19 UTC
+Last updated 2019-02-15 14:31:23 UTC
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">
