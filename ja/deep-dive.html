@@ -434,12 +434,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#詳細">詳細</a>
 <ul class="sectlevel2">
 <li><a href="#project-modules">Project Modules</a></li>
-<li><a href="#request-response">Request/Response</a></li>
-<li><a href="#converter-registry">Converter, Registry</a></li>
-<li><a href="#trustanchorresolver">TrustAnchorResolver</a></li>
-<li><a href="#trustanchorprovider">TrustAnchorProvider</a></li>
-<li><a href="#metadataitemlistresolver">MetadataItemListResolver</a></li>
-<li><a href="#例外クラス">例外クラス</a></li>
+<li><a href="#クラス">クラス</a></li>
 <li><a href="#ログ">ログ</a></li>
 </ul>
 </li>
@@ -482,37 +477,42 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect2">
-<h3 id="request-response"><a class="anchor" href="#request-response"></a>Request/Response</h3>
+<h3 id="クラス"><a class="anchor" href="#クラス"></a>クラス</h3>
+<div class="sect3">
+<h4 id="request-response"><a class="anchor" href="#request-response"></a>Request/Response</h4>
 <div class="paragraph">
 <p><code>com.webauthn4j.request</code> , <code>com.webauthn4j.request</code> パッケージ配下のクラスはイミュータブルなDTOとして設計されています。</p>
 </div>
 </div>
-<div class="sect2">
-<h3 id="converter-registry"><a class="anchor" href="#converter-registry"></a>Converter, Registry</h3>
+<div class="sect3">
+<h4 id="converter-webauthnmodule"><a class="anchor" href="#converter-webauthnmodule"></a>Converter, WebAuthnModule</h4>
 <div class="paragraph">
 <p>リクエスト、レスポンスパッケージ配下のクラスはJacksonによってシリアライズ、デシリアライズ可能なように設計されています。
 一部のクラスはカスタムなシリアライザ、デシリアライザが必要であり、 <code>converter</code> パッケージ配下に集約されています。
-カスタムシリアライザ、デシリアライザは <code>WebAuthnModule</code> にまとめられており、 <code>WebAuthnModule</code> が適用された
-<code>ObjectMapper</code> インスタンスは <code>Registry</code> クラスに登録され、WebAuthn4Jの各クラス間で共有されています。
-もしカスタムなシリアライザ、デシリアライザの追加登録が必要な場合は、Registryクラスが保持するObjectMapperに登録しましょう。</p>
+カスタムシリアライザ、デシリアライザは <code>WebAuthnModule</code> というJacksonのModuleにまとめられています。
+WebAuthn4JのValidatorは内部で使用するJacksonの <code>ObjectMapper</code> に自動で <code>WebAuthnModule</code> を適用しますが、Validatorの外部で
+WebAuthn4Jのシリアライザ、デシリアライザを使用したい場合は、Jacksonの <code>ObjectMapper</code> に <code>WebAuthnModule</code> を登録すると
+良いでしょう。もしWebAuthn4JのValidatorでカスタムなシリアライザ、デシリアライザを使用したい場合は、WebAuthn4JのValidator
+のコンストラクタに、カスタムなシリアライザ、デシリアライザを登録したObjectMapperを渡すことで使用可能です。</p>
 </div>
 </div>
-<div class="sect2">
-<h3 id="trustanchorresolver"><a class="anchor" href="#trustanchorresolver"></a>TrustAnchorResolver</h3>
+<div class="sect3">
+<h4 id="trustanchorsresolver"><a class="anchor" href="#trustanchorsresolver"></a>TrustAnchorsResolver</h4>
 
 </div>
-<div class="sect2">
-<h3 id="trustanchorprovider"><a class="anchor" href="#trustanchorprovider"></a>TrustAnchorProvider</h3>
+<div class="sect3">
+<h4 id="trustanchorsprovider"><a class="anchor" href="#trustanchorsprovider"></a>TrustAnchorsProvider</h4>
 
 </div>
-<div class="sect2">
-<h3 id="metadataitemlistresolver"><a class="anchor" href="#metadataitemlistresolver"></a>MetadataItemListResolver</h3>
+<div class="sect3">
+<h4 id="metadataitemsresolver"><a class="anchor" href="#metadataitemsresolver"></a>MetadataItemsResolver</h4>
 
 </div>
-<div class="sect2">
-<h3 id="例外クラス"><a class="anchor" href="#例外クラス"></a>例外クラス</h3>
+<div class="sect3">
+<h4 id="例外クラス"><a class="anchor" href="#例外クラス"></a>例外クラス</h4>
 <div class="paragraph">
 <p>検証に失敗した場合、 <code>ValidationException</code> のサブクラスがスローされます。</p>
+</div>
 </div>
 </div>
 <div class="sect2">
@@ -528,7 +528,7 @@ Logbackなどログ実装ライブラリを構成し、ログをお好みのス�
 <div id="footer">
 <div id="footer-text">
 Version 0.8.1-SNAPSHOT<br>
-Last updated 2019-02-16 10:44:12 UTC
+Last updated 2019-02-16 11:39:45 UTC
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">
