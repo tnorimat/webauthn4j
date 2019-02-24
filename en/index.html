@@ -741,7 +741,7 @@ Use the constructor of the <code>WebAuthnRegistrationContextValidator</code> cla
 For each attestation statement format, corresponding validator classes are provided.
 Please specify its list at the first argument of the constructor of <code>WebAuthnRegistrationContextValidator</code> class.
 For example, if you would like to limit the supported format to <code>packed</code> only, make the <code>List</code> only with
-<code>PackedAttestationStatementValidator</code>, and if you would like to support <code>packed and `tpm</code> format, make the <code>List</code> with
+<code>PackedAttestationStatementValidator</code>, and if you would like to support <code>packed</code> and <code>tpm</code> format, make the <code>List</code> with
 <code>PackedAttestationStatementValidator</code> and <code>TPMAttestationStatementValidator</code>.</p>
 </div>
 <div class="sect3">
@@ -754,6 +754,18 @@ Certificate path validation is delegated via <code>CertPathTrustworthinessValida
 For example, <code>TrustAnchorCertPathTrustworthinessValidator</code> verifies trustworthiness by checking the attestation certificate
 chains to the root certificate provided as <code>TrustAnchor</code> via <code>TrustAnchorResolver</code> interface.</p>
 </div>
+<div class="sect4">
+<h5 id="attestation-statement-trustworthiness-validation-using-fido-metadata-service"><a class="anchor" href="#attestation-statement-trustworthiness-validation-using-fido-metadata-service"></a>Attestation statement trustworthiness validation using FIDO Metadata Service</h5>
+<div class="paragraph">
+<p>FIDO Alliance offers FIDO Metadata Service, which delivers Authenticator metadata.
+With this service, Relying Party can judge whether a security issue is reported for the authenticator trying to register.
+When verifying the reliability of the attestation statement, <code>MetadataItemsCertPathTrustworthinessValidator</code> in
+<code>webauthn4j-metadata</code> module can be used for it.
+As <code>MetadataItemsCertPathTrustworthinessValidator</code> resolves the <code>MetadataItem</code> list corresponding to
+the AAGUID of the authenticator through the <code>MetadataItemsResolver</code> interface, we can verify the reliability with
+the service by a combination of <code>MetadataItemsResolverImpl</code> and <code>FidoMdsMetadataItemsProvider</code>.</p>
+</div>
+</div>
 </div>
 </div>
 </div>
@@ -762,7 +774,7 @@ chains to the root certificate provided as <code>TrustAnchor</code> via <code>Tr
 <div id="footer">
 <div id="footer-text">
 Version 0.8.2-SNAPSHOT<br>
-Last updated 2019-02-24 12:13:18 UTC
+Last updated 2019-02-24 14:35:42 UTC
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">
