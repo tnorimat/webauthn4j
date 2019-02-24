@@ -439,6 +439,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <ul class="sectlevel2">
 <li><a href="#web-authentication">Web Authentication</a></li>
 <li><a href="#webauthn4j">WebAuthn4J</a></li>
+<li><a href="#spring-security-webauthn">Spring Security WebAuthn</a></li>
+<li><a href="#feature">Feature</a></li>
 <li><a href="#requirements">Requirements</a></li>
 <li><a href="#getting-from-maven-central">Getting from Maven Central</a></li>
 <li><a href="#source-code">Source code</a></li>
@@ -450,6 +452,11 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <ul class="sectlevel2">
 <li><a href="#attestation-verification">Attestation verification</a></li>
 <li><a href="#assertion-verification">Assertion verification</a></li>
+</ul>
+</li>
+<li><a href="#configuration">Configuration</a>
+<ul class="sectlevel2">
+<li><a href="#attestation-statement-validation">Attestation statement validation</a></li>
 </ul>
 </li>
 </ul>
@@ -474,10 +481,23 @@ Initially, the specification was developed as FIDO 2.0 by the FIDO Alliance, but
 <div class="paragraph">
 <p>WebAuthn4J is a portable Java library for WebAuthn server side verification</p>
 </div>
+</div>
+<div class="sect2">
+<h3 id="spring-security-webauthn"><a class="anchor" href="#spring-security-webauthn"></a>Spring Security WebAuthn</h3>
+<div class="paragraph">
+<p>As a related project of WebAuthn4J, we are developing a wrapper library named Spring Security WebAuthn
+to support WebAuthn with Spring Security.
+To introduce WebAuthn in an application built with Spring Security, It is better to use Spring Security WebAuthn rather
+than directly using WebAuthn4J.
+Spring Security WebAuthn also provides an implementation of the REST API of FIDO2 transporting binding profile.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="feature"><a class="anchor" href="#feature"></a>Feature</h3>
 <div class="sect3">
 <h4 id="supported-attestation-statement-formats"><a class="anchor" href="#supported-attestation-statement-formats"></a>Supported Attestation Statement Formats</h4>
 <div class="paragraph">
-<p>List of supported attestation statement formats is below:</p>
+<p>All attestation statement formats are supported:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -507,6 +527,19 @@ Initially, the specification was developed as FIDO 2.0 by the FIDO Alliance, but
 <div class="paragraph">
 <p>All mandatory test cases and optional Android Key attestation test cases of <a href="https://fidoalliance.org/certification/functional-certification/conformance/">FIDO2 Test Tools provided by FIDO Alliance</a>
 are all passed.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Since FIDO2 Test Tools runs the test via the REST API of FIDO2 Transport Binding Profile,
+It is executed through the REST API implementation provided by Spring Security WebAuthn.
+</td>
+</tr>
+</table>
 </div>
 </div>
 </div>
@@ -579,8 +612,7 @@ are all passed.</p>
 <div class="sect2">
 <h3 id="contributing"><a class="anchor" href="#contributing"></a>Contributing</h3>
 <div class="paragraph">
-<p>Interested in helping out with WebAuthn4J? Great! Note that you do not have to be a developer in order to contribute to
-WebAuthn4J. We need folks to help with documentation. Developers, of course, are also welcome.
+<p>Interested in helping out with WebAuthn4J? Great! Your participation in the community is much appreciated!
 Please feel free to open issues and send pull-requests.</p>
 </div>
 </div>
@@ -597,17 +629,18 @@ Please feel free to open issues and send pull-requests.</p>
 <div class="listingblock">
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-java" data-lang="java">// Client properties
-byte[] clientDataJSON    = null /* set clientDataJSON */;
+byte[] clientDataJSON = null /* set clientDataJSON */;
 byte[] attestationObject = null /* set attestationObject */;
 
 // Server properties
-Origin origin          = null /* set origin */;
-String rpId            = null /* set rpId */;
-Challenge challenge    = null /* set challenge */;
-byte[] tokenBindingId  = null /* set tokenBindingId */;
+Origin origin = null /* set origin */;
+String rpId = null /* set rpId */;
+Challenge challenge = null /* set challenge */;
+byte[] tokenBindingId = null /* set tokenBindingId */;
 ServerProperty serverProperty = new ServerProperty(origin, rpId, challenge, tokenBindingId);
+boolean userVerificationRequired = false;
 
-WebAuthnRegistrationContext registrationContext = new WebAuthnRegistrationContext(clientDataJSON, attestationObject, serverProperty, false);
+WebAuthnRegistrationContext registrationContext = new WebAuthnRegistrationContext(clientDataJSON, attestationObject, serverProperty, userVerificationRequired);
 
 // WebAuthnRegistrationContextValidator.createNonStrictRegistrationContextValidator() returns a WebAuthnRegistrationContextValidator instance
 // which doesn't validate an attestation statement. It is recommended configuration for most web application.
@@ -638,17 +671,18 @@ save(authenticator); // please persist authenticator in your manner</code></pre>
 <div class="listingblock">
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-java" data-lang="java">// Client properties
-byte[] credentialId      = null /* set credentialId */;
-byte[] clientDataJSON    = null /* set clientDataJSON */;
+byte[] credentialId = null /* set credentialId */;
+byte[] clientDataJSON = null /* set clientDataJSON */;
 byte[] authenticatorData = null /* set authenticatorData */;
 byte[] signature = null /* set signature */;
 
 // Server properties
-Origin origin          = null /* set origin */;
-String rpId            = null /* set rpId */;
-Challenge challenge    = null /* set challenge */;
-byte[] tokenBindingId  = null /* set tokenBindingId */;
+Origin origin = null /* set origin */;
+String rpId = null /* set rpId */;
+Challenge challenge = null /* set challenge */;
+byte[] tokenBindingId = null /* set tokenBindingId */;
 ServerProperty serverProperty = new ServerProperty(origin, rpId, challenge, tokenBindingId);
+boolean userVerificationRequired = true;
 
 WebAuthnAuthenticationContext authenticationContext =
         new WebAuthnAuthenticationContext(
@@ -657,10 +691,9 @@ WebAuthnAuthenticationContext authenticationContext =
                 authenticatorData,
                 signature,
                 serverProperty,
-                true
+                userVerificationRequired
         );
-
-Authenticator authenticator = load(); // please load authenticator object persisted in the registration process in your manner
+Authenticator authenticator = load(credentialId); // please load authenticator object persisted in the registration process in your manner
 
 WebAuthnAuthenticationContextValidator webAuthnAuthenticationContextValidator =
         new WebAuthnAuthenticationContextValidator();
@@ -677,11 +710,59 @@ updateCounter(
 </div>
 </div>
 </div>
+<div class="sect1">
+<h2 id="configuration"><a class="anchor" href="#configuration"></a>Configuration</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>There are two main classes when using WebAuthn4J. One is <code>WebAuthnRegistrationContextValidator</code> class, which is
+used to verify the credentials at the time of registration, and the other is <code>WebAuthnRegistrationContextValidator</code> class,
+which is used to verify the credentials during authentication.</p>
+</div>
+<div class="paragraph">
+<p><code>WebAuthnRegistrationContextValidator</code> delegates attestation statements validation to an implementation of
+<code>AttestationStatementValidator</code> and attestation statements trustworthiness validation to an implementation of
+<code>CertPathTrustworthinessValidator</code>.</p>
+</div>
+<div class="paragraph">
+<p>Since most sites don&#8217;t require strict attestation statement validation
+(<a href="https://www.w3.org/TR/2019/PR-webauthn-20190117/#sctn-no-attestation-security-attestation">WebAuthn Spec related topic</a> ),
+WebAuthn4J provides <code>WebAuthnRegistrationContextValidator.createNonStrictRegistrationContextValidator</code> factory method
+that returns an instance configured <code>CertPathTrustworthinessValidator</code> and  <code>WebAuthnRegistrationContextValidator</code>
+not to validate attestation statements.</p>
+</div>
+<div class="paragraph">
+<p>If you are engaging an enterprise use case and strict verification of an authenticator is a requirement,
+Use the constructor of the <code>WebAuthnRegistrationContextValidator</code> class and inject validators.</p>
+</div>
+<div class="sect2">
+<h3 id="attestation-statement-validation"><a class="anchor" href="#attestation-statement-validation"></a>Attestation statement validation</h3>
+<div class="paragraph">
+<p>Attestation statement validation is provided by the implementation of <code>AttestationStatementValidator</code> interface.
+For each attestation statement format, corresponding validator classes are provided.
+Please specify its list at the first argument of the constructor of <code>WebAuthnRegistrationContextValidator</code> class.
+For example, if you would like to limit the supported format to <code>packed</code> only, make the <code>List</code> only with
+<code>PackedAttestationStatementValidator</code>, and if you would like to support <code>packed and `tpm</code> format, make the <code>List</code> with
+<code>PackedAttestationStatementValidator</code> and <code>TPMAttestationStatementValidator</code>.</p>
+</div>
+<div class="sect3">
+<h4 id="attestation-statement-trustworthiness-validation"><a class="anchor" href="#attestation-statement-trustworthiness-validation"></a>Attestation statement trustworthiness validation</h4>
+<div class="paragraph">
+<p>Attestation statement trustworthiness validation has three patterns: certificate path validation, ecdaa validation, and
+self attestation.
+Certificate path validation is delegated via <code>CertPathTrustworthinessValidator</code> interface, and ECDAA is delegated via
+<code>ECDAATrustworthinessValidator</code> interface. WebAuthn4J provides some <code>CertPathTrustworthinessValidator</code> implementations.
+For example, <code>TrustAnchorCertPathTrustworthinessValidator</code> verifies trustworthiness by checking the attestation certificate
+chains to the root certificate provided as <code>TrustAnchor</code> via <code>TrustAnchorResolver</code> interface.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div id="footer">
 <div id="footer-text">
 Version 0.8.2-SNAPSHOT<br>
-Last updated 2019-02-24 10:49:45 UTC
+Last updated 2019-02-24 12:13:18 UTC
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">

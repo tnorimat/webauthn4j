@@ -435,6 +435,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <ul class="sectlevel2">
 <li><a href="#web-authentication">Web Authentication</a></li>
 <li><a href="#webauthn4j">WebAuthn4J</a></li>
+<li><a href="#spring-security-webauthn">Spring Security WebAuthn</a></li>
+<li><a href="#feature">Feature</a></li>
 <li><a href="#requirements">Requirements</a></li>
 <li><a href="#getting-from-maven-central">Getting from Maven Central</a></li>
 <li><a href="#source-code">Source code</a></li>
@@ -464,10 +466,23 @@ Initially, the specification was developed as FIDO 2.0 by the FIDO Alliance, but
 <div class="paragraph">
 <p>WebAuthn4J is a portable Java library for WebAuthn server side verification</p>
 </div>
+</div>
+<div class="sect2">
+<h3 id="spring-security-webauthn"><a class="anchor" href="#spring-security-webauthn"></a>Spring Security WebAuthn</h3>
+<div class="paragraph">
+<p>As a related project of WebAuthn4J, we are developing a wrapper library named Spring Security WebAuthn
+to support WebAuthn with Spring Security.
+To introduce WebAuthn in an application built with Spring Security, It is better to use Spring Security WebAuthn rather
+than directly using WebAuthn4J.
+Spring Security WebAuthn also provides an implementation of the REST API of FIDO2 transporting binding profile.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="feature"><a class="anchor" href="#feature"></a>Feature</h3>
 <div class="sect3">
 <h4 id="supported-attestation-statement-formats"><a class="anchor" href="#supported-attestation-statement-formats"></a>Supported Attestation Statement Formats</h4>
 <div class="paragraph">
-<p>List of supported attestation statement formats is below:</p>
+<p>All attestation statement formats are supported:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -497,6 +512,19 @@ Initially, the specification was developed as FIDO 2.0 by the FIDO Alliance, but
 <div class="paragraph">
 <p>All mandatory test cases and optional Android Key attestation test cases of <a href="https://fidoalliance.org/certification/functional-certification/conformance/">FIDO2 Test Tools provided by FIDO Alliance</a>
 are all passed.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Since FIDO2 Test Tools runs the test via the REST API of FIDO2 Transport Binding Profile,
+It is executed through the REST API implementation provided by Spring Security WebAuthn.
+</td>
+</tr>
+</table>
 </div>
 </div>
 </div>
@@ -569,8 +597,7 @@ are all passed.</p>
 <div class="sect2">
 <h3 id="contributing"><a class="anchor" href="#contributing"></a>Contributing</h3>
 <div class="paragraph">
-<p>Interested in helping out with WebAuthn4J? Great! Note that you do not have to be a developer in order to contribute to
-WebAuthn4J. We need folks to help with documentation. Developers, of course, are also welcome.
+<p>Interested in helping out with WebAuthn4J? Great! Your participation in the community is much appreciated!
 Please feel free to open issues and send pull-requests.</p>
 </div>
 </div>
@@ -580,7 +607,7 @@ Please feel free to open issues and send pull-requests.</p>
 <div id="footer">
 <div id="footer-text">
 Version 0.8.2-SNAPSHOT<br>
-Last updated 2019-02-24 10:49:45 UTC
+Last updated 2019-02-24 12:13:18 UTC
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">

@@ -5,7 +5,7 @@
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.6.1">
-<title>Quick Start</title>
+<title>Configuration</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | http://asciidoctor.org */
@@ -431,10 +431,9 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#quick-start">Quick Start</a>
+<li><a href="#configuration">Configuration</a>
 <ul class="sectlevel2">
-<li><a href="#attestation-verification">Attestation verification</a></li>
-<li><a href="#assertion-verification">Assertion verification</a></li>
+<li><a href="#attestation-statement-validation">Attestation statement validation</a></li>
 </ul>
 </li>
 </ul>
@@ -442,92 +441,48 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="quick-start"><a class="anchor" href="#quick-start"></a>Quick Start</h2>
+<h2 id="configuration"><a class="anchor" href="#configuration"></a>Configuration</h2>
 <div class="sectionbody">
-<div class="sect2">
-<h3 id="attestation-verification"><a class="anchor" href="#attestation-verification"></a>Attestation verification</h3>
 <div class="paragraph">
-<p>To verify an attestation on authenticator registration, call <code>WebAuthnRegistrationContextValidator#validate</code>.</p>
+<p>There are two main classes when using WebAuthn4J. One is <code>WebAuthnRegistrationContextValidator</code> class, which is
+used to verify the credentials at the time of registration, and the other is <code>WebAuthnRegistrationContextValidator</code> class,
+which is used to verify the credentials during authentication.</p>
 </div>
-<div class="listingblock">
-<div class="content">
-<pre class="prettyprint highlight"><code class="language-java" data-lang="java">// Client properties
-byte[] clientDataJSON = null /* set clientDataJSON */;
-byte[] attestationObject = null /* set attestationObject */;
-
-// Server properties
-Origin origin = null /* set origin */;
-String rpId = null /* set rpId */;
-Challenge challenge = null /* set challenge */;
-byte[] tokenBindingId = null /* set tokenBindingId */;
-ServerProperty serverProperty = new ServerProperty(origin, rpId, challenge, tokenBindingId);
-boolean userVerificationRequired = false;
-
-WebAuthnRegistrationContext registrationContext = new WebAuthnRegistrationContext(clientDataJSON, attestationObject, serverProperty, userVerificationRequired);
-
-// WebAuthnRegistrationContextValidator.createNonStrictRegistrationContextValidator() returns a WebAuthnRegistrationContextValidator instance
-// which doesn't validate an attestation statement. It is recommended configuration for most web application.
-// If you are building enterprise web application and need to validate the attestation statement, use the constructor of
-// WebAuthnRegistrationContextValidator and provide validators you like
-WebAuthnRegistrationContextValidator webAuthnRegistrationContextValidator =
-        WebAuthnRegistrationContextValidator.createNonStrictRegistrationContextValidator();
-
-
-WebAuthnRegistrationContextValidationResponse response = webAuthnRegistrationContextValidator.validate(registrationContext);
-
-// please persist Authenticator object, which will be used in the authentication process.
-Authenticator authenticator =
-        new AuthenticatorImpl( // You may create your own Authenticator implementation to save friendly authenticator name
-                response.getAttestationObject().getAuthenticatorData().getAttestedCredentialData(),
-                response.getAttestationObject().getAttestationStatement(),
-                response.getAttestationObject().getAuthenticatorData().getSignCount()
-        );
-save(authenticator); // please persist authenticator in your manner</code></pre>
+<div class="paragraph">
+<p><code>WebAuthnRegistrationContextValidator</code> delegates attestation statements validation to an implementation of
+<code>AttestationStatementValidator</code> and attestation statements trustworthiness validation to an implementation of
+<code>CertPathTrustworthinessValidator</code>.</p>
 </div>
+<div class="paragraph">
+<p>Since most sites don&#8217;t require strict attestation statement validation
+(<a href="https://www.w3.org/TR/2019/PR-webauthn-20190117/#sctn-no-attestation-security-attestation">WebAuthn Spec related topic</a> ),
+WebAuthn4J provides <code>WebAuthnRegistrationContextValidator.createNonStrictRegistrationContextValidator</code> factory method
+that returns an instance configured <code>CertPathTrustworthinessValidator</code> and  <code>WebAuthnRegistrationContextValidator</code>
+not to validate attestation statements.</p>
 </div>
+<div class="paragraph">
+<p>If you are engaging an enterprise use case and strict verification of an authenticator is a requirement,
+Use the constructor of the <code>WebAuthnRegistrationContextValidator</code> class and inject validators.</p>
 </div>
 <div class="sect2">
-<h3 id="assertion-verification"><a class="anchor" href="#assertion-verification"></a>Assertion verification</h3>
+<h3 id="attestation-statement-validation"><a class="anchor" href="#attestation-statement-validation"></a>Attestation statement validation</h3>
 <div class="paragraph">
-<p>To verify an assertion on authentication, call <code>WebAuthnAuthenticationContextValidator#validate</code>.</p>
+<p>Attestation statement validation is provided by the implementation of <code>AttestationStatementValidator</code> interface.
+For each attestation statement format, corresponding validator classes are provided.
+Please specify its list at the first argument of the constructor of <code>WebAuthnRegistrationContextValidator</code> class.
+For example, if you would like to limit the supported format to <code>packed</code> only, make the <code>List</code> only with
+<code>PackedAttestationStatementValidator</code>, and if you would like to support <code>packed and `tpm</code> format, make the <code>List</code> with
+<code>PackedAttestationStatementValidator</code> and <code>TPMAttestationStatementValidator</code>.</p>
 </div>
-<div class="listingblock">
-<div class="content">
-<pre class="prettyprint highlight"><code class="language-java" data-lang="java">// Client properties
-byte[] credentialId = null /* set credentialId */;
-byte[] clientDataJSON = null /* set clientDataJSON */;
-byte[] authenticatorData = null /* set authenticatorData */;
-byte[] signature = null /* set signature */;
-
-// Server properties
-Origin origin = null /* set origin */;
-String rpId = null /* set rpId */;
-Challenge challenge = null /* set challenge */;
-byte[] tokenBindingId = null /* set tokenBindingId */;
-ServerProperty serverProperty = new ServerProperty(origin, rpId, challenge, tokenBindingId);
-boolean userVerificationRequired = true;
-
-WebAuthnAuthenticationContext authenticationContext =
-        new WebAuthnAuthenticationContext(
-                credentialId,
-                clientDataJSON,
-                authenticatorData,
-                signature,
-                serverProperty,
-                userVerificationRequired
-        );
-Authenticator authenticator = load(credentialId); // please load authenticator object persisted in the registration process in your manner
-
-WebAuthnAuthenticationContextValidator webAuthnAuthenticationContextValidator =
-        new WebAuthnAuthenticationContextValidator();
-
-WebAuthnAuthenticationContextValidationResponse response = webAuthnAuthenticationContextValidator.validate(authenticationContext, authenticator);
-
-// please update the counter of the authenticator record
-updateCounter(
-        response.getAuthenticatorData().getAttestedCredentialData().getCredentialId(),
-        response.getAuthenticatorData().getSignCount()
-);</code></pre>
+<div class="sect3">
+<h4 id="attestation-statement-trustworthiness-validation"><a class="anchor" href="#attestation-statement-trustworthiness-validation"></a>Attestation statement trustworthiness validation</h4>
+<div class="paragraph">
+<p>Attestation statement trustworthiness validation has three patterns: certificate path validation, ecdaa validation, and
+self attestation.
+Certificate path validation is delegated via <code>CertPathTrustworthinessValidator</code> interface, and ECDAA is delegated via
+<code>ECDAATrustworthinessValidator</code> interface. WebAuthn4J provides some <code>CertPathTrustworthinessValidator</code> implementations.
+For example, <code>TrustAnchorCertPathTrustworthinessValidator</code> verifies trustworthiness by checking the attestation certificate
+chains to the root certificate provided as <code>TrustAnchor</code> via <code>TrustAnchorResolver</code> interface.</p>
 </div>
 </div>
 </div>
