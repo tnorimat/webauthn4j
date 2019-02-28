@@ -435,6 +435,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <ul class="sectlevel2">
 <li><a href="#project-modules">Project Modules</a></li>
 <li><a href="#classes">Classes</a></li>
+<li><a href="#logging">Logging</a></li>
 </ul>
 </li>
 </ul>
@@ -483,6 +484,50 @@ may be changed even though it is public.</p>
 <p>Classes under <code>com.webauthn4j.request</code>, <code>com.webauthn4j.request</code> package are designed as immutable DTO.</p>
 </div>
 </div>
+<div class="sect3">
+<h4 id="converter-webauthnmodule"><a class="anchor" href="#converter-webauthnmodule"></a>Converter, WebAuthnModule</h4>
+<div class="paragraph">
+<p>Classes under <code>com.webauthn4j.request</code>, <code>com.webauthn4j.request</code> package are designed as being serializable and deserializable.</p>
+</div>
+<div class="paragraph">
+<p>Classes under <code>converter</code> package needs custom serializer and deserializer. Jackson&#8217;s module named <code>WebAuthnModule</code>
+consolidates these custom serializer and deserializer. WebAuthn4J’s validators register <code>WebAuthnModule</code> onto Jackson&#8217;s
+<code>ObjectMapper</code> automatically.</p>
+</div>
+<div class="paragraph">
+<p>If you want to use WebAuthn4J’s serializer and deserializer outside these WebAuthn4J&#8217;s validators,
+you can register <code>WebAuthnModule</code> onto Jackson&#8217;s <code>ObjectMapper</code>.</p>
+</div>
+<div class="paragraph">
+<p>If you want to use your custom serializer and deserializer for WebAuthn4J’s validators,
+you can register your custom serializer and deserializer onto <code>ObjectMapper</code> and pass it onto WebAuthn4J' validators
+via those constructors.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="trustanchorsresolver"><a class="anchor" href="#trustanchorsresolver"></a>TrustAnchorsResolver</h4>
+
+</div>
+<div class="sect3">
+<h4 id="trustanchorsprovider"><a class="anchor" href="#trustanchorsprovider"></a>TrustAnchorsProvider</h4>
+
+</div>
+<div class="sect3">
+<h4 id="metadataitemsresolver"><a class="anchor" href="#metadataitemsresolver"></a>MetadataItemsResolver</h4>
+
+</div>
+<div class="sect3">
+<h4 id="exceptions"><a class="anchor" href="#exceptions"></a>Exceptions</h4>
+<div class="paragraph">
+<p>If some verification fails, WebAuthn4J throws an exception class inheriting <code>ValidationException</code>.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="logging"><a class="anchor" href="#logging"></a>Logging</h3>
+<div class="paragraph">
+<p>WebAuthn4J uses SLF4J as log interface library. You can use any kind of this implementation like Logback as you want.</p>
+</div>
 </div>
 </div>
 </div>
@@ -490,7 +535,7 @@ may be changed even though it is public.</p>
 <div id="footer">
 <div id="footer-text">
 Version 0.8.5.RELEASE<br>
-Last updated 2019-02-28 10:52:18 UTC
+Last updated 2019-02-28 12:05:07 UTC
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">

@@ -5,7 +5,7 @@
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.6.1">
-<title>Configuration</title>
+<title>Known Issues</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | http://asciidoctor.org */
@@ -431,10 +431,14 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#configuration">Configuration</a>
+<li><a href="#known-issues">Known Issues</a>
 <ul class="sectlevel2">
-<li><a href="#attestation-statement-validation">Attestation statement validation</a></li>
-<li><a href="#representation-of-an-authenticator">Representation of an authenticator</a></li>
+<li><a href="#safari-s-webauthn-support">Safari&#8217;s WebAuthn support</a></li>
+<li><a href="#chrome-s-residentkey-support">Chrome&#8217;s ResidentKey support</a></li>
+<li><a href="#firefox-s-webauthn-support">Firefox&#8217;s WebAuthn support</a></li>
+<li><a href="#supporting-features-difference-between-browsers">Supporting features' difference between browsers</a></li>
+<li><a href="#webauthn4j-s-ecdaa-support">WebAuthn4J&#8217;s ECDAA support</a></li>
+<li><a href="#webauthn4j-s-ps256-ps384-ps512-support">WebAuthn4J&#8217;s PS256/PS384/PS512 support</a></li>
 </ul>
 </li>
 </ul>
@@ -442,76 +446,81 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="configuration"><a class="anchor" href="#configuration"></a>Configuration</h2>
+<h2 id="known-issues"><a class="anchor" href="#known-issues"></a>Known Issues</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>There are two main classes when using WebAuthn4J. One is <code>WebAuthnRegistrationContextValidator</code> class, which is
-used to verify the credentials at the time of registration, and the other is <code>WebAuthnAuthenticationContextValidator</code> class,
-which is used to verify the credentials during authentication.</p>
-</div>
-<div class="paragraph">
-<p><code>WebAuthnRegistrationContextValidator</code> delegates attestation statements validation to an implementation of
-<code>AttestationStatementValidator</code> and attestation statements trustworthiness validation to an implementation of
-<code>CertPathTrustworthinessValidator</code>.</p>
-</div>
-<div class="paragraph">
-<p>Since most sites don&#8217;t require strict attestation statement validation
-(<a href="https://www.w3.org/TR/2019/PR-webauthn-20190117/#sctn-no-attestation-security-attestation">WebAuthn Spec related topic</a> ),
-WebAuthn4J provides <code>WebAuthnRegistrationContextValidator.createNonStrictRegistrationContextValidator</code> factory method
-that returns an instance configured <code>CertPathTrustworthinessValidator</code> and  <code>WebAuthnRegistrationContextValidator</code>
-not to validate attestation statements.</p>
-</div>
-<div class="paragraph">
-<p>If you are engaging an enterprise use case and strict verification of an authenticator is a requirement,
-Use the constructor of the <code>WebAuthnRegistrationContextValidator</code> class and inject validators.</p>
+<p>WebAuthn is state of the art technology. Therefore, there are still some limitations products utilizing it have.
+This section tells you issues known at the time of Feb 2019 that might be encountered if you try to use products
+utilizing WebAuthn technology.</p>
 </div>
 <div class="sect2">
-<h3 id="attestation-statement-validation"><a class="anchor" href="#attestation-statement-validation"></a>Attestation statement validation</h3>
+<h3 id="safari-s-webauthn-support"><a class="anchor" href="#safari-s-webauthn-support"></a>Safari&#8217;s WebAuthn support</h3>
 <div class="paragraph">
-<p>Attestation statement validation is provided by the implementation of <code>AttestationStatementValidator</code> interface.
-For each attestation statement format, corresponding validator classes are provided.
-Please specify its list at the first argument of the constructor of <code>WebAuthnRegistrationContextValidator</code> class.
-For example, if you would like to limit the supported format to <code>packed</code> only, make the <code>List</code> only with
-<code>PackedAttestationStatementValidator</code>, and if you would like to support <code>packed</code> and <code>tpm</code> format, make the <code>List</code> with
-<code>PackedAttestationStatementValidator</code> and <code>TPMAttestationStatementValidator</code>.</p>
+<p>Safari has not yet supported WebAuthn, which means that you cannot use iPhone/iPad to experience authentication
+utilizing WebAuthn technology.</p>
 </div>
-<div class="sect3">
-<h4 id="attestation-statement-trustworthiness-validation"><a class="anchor" href="#attestation-statement-trustworthiness-validation"></a>Attestation statement trustworthiness validation</h4>
 <div class="paragraph">
-<p>Attestation statement trustworthiness validation has three patterns: certificate path validation, ecdaa validation, and
-self attestation.
-Certificate path validation is delegated via <code>CertPathTrustworthinessValidator</code> interface, and ECDAA is delegated via
-<code>ECDAATrustworthinessValidator</code> interface. WebAuthn4J provides some <code>CertPathTrustworthinessValidator</code> implementations.
-For example, <code>TrustAnchorCertPathTrustworthinessValidator</code> verifies trustworthiness by checking the attestation certificate
-chains to the root certificate provided as <code>TrustAnchor</code> via <code>TrustAnchorResolver</code> interface.</p>
-</div>
-<div class="sect4">
-<h5 id="attestation-statement-trustworthiness-validation-using-fido-metadata-service"><a class="anchor" href="#attestation-statement-trustworthiness-validation-using-fido-metadata-service"></a>Attestation statement trustworthiness validation using FIDO Metadata Service</h5>
-<div class="paragraph">
-<p>FIDO Alliance offers FIDO Metadata Service, which delivers Authenticator metadata.
-With this service, Relying Party can judge whether a security issue is reported for the authenticator trying to register.
-When verifying the reliability of the attestation statement with this service, <code>MetadataItemsCertPathTrustworthinessValidator</code> in
-<code>webauthn4j-metadata</code> module can be used for it.
-As <code>MetadataItemsCertPathTrustworthinessValidator</code> resolves the <code>MetadataItem</code> list corresponding to
-the AAGUID of the authenticator through the <code>MetadataItemsResolver</code> interface, we can verify the reliability with
-the service by a combination of <code>MetadataItemsResolverImpl</code> and <code>FidoMdsMetadataItemsProvider</code>.</p>
-</div>
-</div>
+<p>Safari&#8217;s Technology Preview version has supported WebAuthn using CTAP2 Authenticator, but it has not yet integrated
+Face ID and Touch ID. However, it seems to be expected to integrate them sooner or later.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="representation-of-an-authenticator"><a class="anchor" href="#representation-of-an-authenticator"></a>Representation of an authenticator</h3>
+<h3 id="chrome-s-residentkey-support"><a class="anchor" href="#chrome-s-residentkey-support"></a>Chrome&#8217;s ResidentKey support</h3>
 <div class="paragraph">
-<p>WebAuthn4j provides <code>Authenticator</code> interface as a representation of an authenticator.</p>
+<p>Chrome has not yet supported ResidentKey, which means that you cannot use Chrome to experience authentication utilizing
+WebAuthn technology without entering your account&#8217;s ID</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+You can mimic such the experience by storing credentialId onto LocalStorage on registration and read it on
+authentication. However, it doesn&#8217;t works if a user uses Roaming Authenticator for authentication.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="firefox-s-webauthn-support"><a class="anchor" href="#firefox-s-webauthn-support"></a>Firefox&#8217;s WebAuthn support</h3>
+<div class="paragraph">
+<p>Firefox has supported WebAuthn using FIDO U2F Authenticator, and not CTAP2 Authenticator.</p>
 </div>
 <div class="paragraph">
-<p>On registering the authenticator, you need to persist its representation by creating the instance implementing
-<code>Authenticator</code> interface in your application manner because it is used afterwards on authentication verification.
-It might be better to use credentialId as a search key for this persisted instance.</p>
+<p>However, Windows' Firefox implementation plans to use FIDO2 API provided by Windows OS, which will makes users to
+experience authentication utilizing WebAuthn technology with CTAP2 Authenticator and Windows Hello.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="supporting-features-difference-between-browsers"><a class="anchor" href="#supporting-features-difference-between-browsers"></a>Supporting features' difference between browsers</h3>
+<div class="paragraph">
+<p>Browser vendors has been struggling to support WebAuthn. However, it is nothing unusual that the feature supported
+by some platforms are not supported by other platforms. Considering it, it is recommended to prepare some fallback
+mechanism for your users using platforms not supporting the feature you expected to support.</p>
 </div>
 <div class="paragraph">
-<p>You can freely enhance the class implementing <code>Authenticator</code> interface in order to meet your application’s requirements.
-For example, you can add the field for your application’s user to identify the authenticator.</p>
+<p>For example, if you utilize ResidentKey to omit entering user account&#8217;s ID, it might be better to support two-factor
+authentication requiring password authentication for users using Chrome and Firefox, and two-factor authentication
+without WebAuthn for users using Safari.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="webauthn4j-s-ecdaa-support"><a class="anchor" href="#webauthn4j-s-ecdaa-support"></a>WebAuthn4J&#8217;s ECDAA support</h3>
+<div class="paragraph">
+<p>WebAuthn4J has not yet supported ECDAA (Elliptic Curve based Direct Anonymous Attestation) algorithm. There is no plan
+to support it for the time being because ECDAA algorithm support is optional by WebAuthn specification and major
+browsers have not yet supported it.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="webauthn4j-s-ps256-ps384-ps512-support"><a class="anchor" href="#webauthn4j-s-ps256-ps384-ps512-support"></a>WebAuthn4J&#8217;s PS256/PS384/PS512 support</h3>
+<div class="paragraph">
+<p>WebAuthn4J has not yet supported PS256, PS384, and PS512 algorithms. There is no plan to support it for the time being
+because these algorithms support is optional by WebAuthn specification and standard Providers of Java Crypto API
+have not yet supported it.</p>
 </div>
 </div>
 </div>
