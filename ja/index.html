@@ -672,7 +672,7 @@ ClientDataに書き込んで署名を行います。WebAuthn4Jは書き込まれ
 </li>
 <li>
 <p><code>rpId</code> にはWebAuthnによる認証を提供するサイトのrpIdを指定して下さい。rpIdは資格情報のスコープを指定するパラメータです。
-詳しくは <a href="https://www.w3.org/TR/2019/PR-webauthn-20190117/#relying-party-identifier">WebAuthnの仕様書のrpIdの項</a> を参照して下さい。</p>
+詳しくは <a href="https://www.w3.org/TR/webauthn-1/#relying-party-identifier">WebAuthnの仕様書のrpIdの項</a> を参照して下さい。</p>
 </li>
 <li>
 <p><code>challenge</code> には発行したChallengeを指定して下さい。<code>challenge</code> はリプレイ攻撃を防ぐ為のパラメータです。
@@ -757,7 +757,7 @@ save(authenticator); // アプリケーションの作法に則った、Authenti
 検証に成功した場合は、 <code>WebAuthnAuthenticationContextValidationResponse</code> が返却されます。
 <code>Authenticator</code> に紐づけたカウンタの値を更新してください。カウンタは万が一認証デバイスのクローンが
 作成された場合を検知するために用意されています。カウンタについて詳しくは
-<a href="https://www.w3.org/TR/2019/PR-webauthn-20190117/#sign-counter">WebAuthnの仕様書のカウンタの項</a> を参照して下さい。</p>
+<a href="https://www.w3.org/TR/webauthn-1/#sign-counter">WebAuthnの仕様書のカウンタの項</a> を参照して下さい。</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -815,7 +815,7 @@ updateCounter(
 </div>
 <div class="paragraph">
 <p>大多数のサイトは厳密な構成証明ステートメントの検証を必要としないでしょうから（
-<a href="https://www.w3.org/TR/2019/PR-webauthn-20190117/#sctn-no-attestation-security-attestation">WebAuthn仕様書関連個所参照</a> ）、
+<a href="https://www.w3.org/TR/webauthn-1/#sctn-no-attestation-security-attestation">WebAuthn仕様書関連個所参照</a> ）、
 WebAuthn4Jでは構成証明ステートメントの検証をしないように <code>AttestationStatementValidator</code> と
 <code>CertPathTrustworthinessValidator</code> を構成した <code>WebAuthnRegistrationContextValidator</code> のインスタンスを返却する
 <code>WebAuthnRegistrationContextValidator.createNonStrictRegistrationContextValidator</code> ファクトリメソッドを用意しています。</p>
@@ -1028,7 +1028,7 @@ PS256、PS384、PS512アルゴリズムはWebAuthn仕様でオプションとさ
 <div id="footer">
 <div id="footer-text">
 Version 0.8.5.RELEASE<br>
-Last updated 2019-03-05 10:54:30 UTC
+Last updated 2019-03-05 14:11:38 UTC
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">
