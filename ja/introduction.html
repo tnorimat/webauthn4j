@@ -455,7 +455,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sect2">
 <h3 id="web-authenticationとは"><a class="anchor" href="#web-authenticationとは"></a>Web Authenticationとは</h3>
 <div class="paragraph">
-<p>Web Authenticationは、W3Cで仕様策定が進められている、Webアプリケーションの新しいセキュアな認証方式仕様です。
+<p>Web Authenticationは、W3Cで2019年3月に勧告になったWebアプリケーションの新しいセキュアな認証方式仕様です。
 ローカル認証や公開鍵認証、Origin別の鍵管理を組み合わせることで、フィッシングなど認証プロセスに対する攻撃に対して堅固な認証を実現しています。
 主要ブラウザでの実装が進みつつあり、セキュリティ、利便性を重視するユーザーに対して優れた選択肢を提供します。
 当初はFIDO AllianceでFIDO2.0の一部として仕様策定が進められていましたが、現在はW3Cに移管され、仕様策定が行われています。</p>
@@ -465,7 +465,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h3 id="webauthn4jとは"><a class="anchor" href="#webauthn4jとは"></a>WebAuthn4Jとは</h3>
 <div class="paragraph">
 <p>Web Authentication仕様に基づくサーバーサイド検証を行うためのJavaライブラリです。
-全てのAttestationをサポートしつつ、外部ライブラリへの依存関係を最小限に抑えたポータブルなライブラリです。</p>
+全ての構成証明ステートメント（Attestation）をサポートしつつ、外部ライブラリへの依存関係を最小限に抑えたポータブルなライブラリです。</p>
 </div>
 </div>
 <div class="sect2">
@@ -479,9 +479,9 @@ Spring Security WebAuthnを利用するのが良いでしょう。FIDO2 Transpor
 <div class="sect2">
 <h3 id="特徴"><a class="anchor" href="#特徴"></a>特徴</h3>
 <div class="sect3">
-<h4 id="サポートする証言ステートメントフォーマット"><a class="anchor" href="#サポートする証言ステートメントフォーマット"></a>サポートする証言ステートメントフォーマット</h4>
+<h4 id="サポートする構成証明ステートメントフォーマット"><a class="anchor" href="#サポートする構成証明ステートメントフォーマット"></a>サポートする構成証明ステートメントフォーマット</h4>
 <div class="paragraph">
-<p>WebAuthn4Jでは、以下の通り全ての証言ステートメントフォーマットをサポートしています。</p>
+<p>WebAuthn4Jでは、以下の通り全ての構成証明ステートメントフォーマットをサポートしています。</p>
 </div>
 <div class="ulist">
 <ul>
@@ -614,7 +614,7 @@ FIDO2 Test ToolsはFIDO2 Transport Binding ProfileのREST API経由でテスト�
 <div id="footer">
 <div id="footer-text">
 Version 0.9.0-SNAPSHOT<br>
-Last updated 2019-03-17 02:47:09 UTC
+Last updated 2019-03-17 08:00:22 UTC
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">
