@@ -440,6 +440,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <ul class="sectlevel2">
 <li><a href="#構成証明ステートメントの検証">1.1. 構成証明ステートメントの検証</a></li>
 <li><a href="#認証デバイスの表現">1.2. 認証デバイスの表現</a></li>
+<li><a href="#webauthn4jが提供しない機能">1.3. WebAuthn4Jが提供しない機能</a></li>
 </ul>
 </li>
 </ul>
@@ -517,13 +518,23 @@ WebAuthn4Jはいくつか <code>CertPathTrustworthinessValidator</code> イン�
 典型的には、 <code>Authenticator</code> をユーザーが識別するための名前フィールドの追加などが考えられるでしょう。</p>
 </div>
 </div>
+<div class="sect2">
+<h3 id="webauthn4jが提供しない機能"><a class="anchor" href="#webauthn4jが提供しない機能"></a>1.3. WebAuthn4Jが提供しない機能</h3>
+<div class="paragraph">
+<p>WebAuthn4Jは特定のフレームワークに依存しないポータビリティを実現する為、
+WebAuthnのAssertion/Attestationの検証に意図的に機能を絞り込んでおり、HTTPリクエストからのパラメータの取出、
+Challengeの発行・セッションへの保存、カウンタ値の検証は具備していません。
+使用する認証フレームワークに合わせて独自に実装して下さい。Spring Securityをご利用の場合は、
+Spring Security WebAuthnがそれらの認証フレームワーク特化の部分の実装を提供しますので活用をご検討下さい。</p>
+</div>
+</div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
 Version 0.9.0-SNAPSHOT<br>
-Last updated 2019-03-22 11:03:52 UTC
+Last updated 2019-03-22 14:32:28 UTC
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">

@@ -464,23 +464,20 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <ul class="sectlevel2">
 <li><a href="#構成証明ステートメントの検証">3.1. 構成証明ステートメントの検証</a></li>
 <li><a href="#認証デバイスの表現">3.2. 認証デバイスの表現</a></li>
+<li><a href="#webauthn4jが提供しない機能">3.3. WebAuthn4Jが提供しない機能</a></li>
+<li><a href="#project-modules">3.4. Project Modules</a></li>
+<li><a href="#クラス">3.5. クラス</a></li>
+<li><a href="#ログ">3.6. ログ</a></li>
 </ul>
 </li>
-<li><a href="#詳細">4. 詳細</a>
+<li><a href="#既知の問題">4. 既知の問題</a>
 <ul class="sectlevel2">
-<li><a href="#project-modules">4.1. Project Modules</a></li>
-<li><a href="#クラス">4.2. クラス</a></li>
-<li><a href="#ログ">4.3. ログ</a></li>
-</ul>
-</li>
-<li><a href="#既知の問題">5. 既知の問題</a>
-<ul class="sectlevel2">
-<li><a href="#safariのサポート">5.1. Safariのサポート</a></li>
-<li><a href="#chromeのresidentkey対応">5.2. ChromeのResidentKey対応</a></li>
-<li><a href="#firefoxのサポート">5.3. Firefoxのサポート</a></li>
-<li><a href="#ブラウザ間でのサポート状況の差異">5.4. ブラウザ間でのサポート状況の差異</a></li>
-<li><a href="#ecdaaのサポート">5.5. ECDAAのサポート</a></li>
-<li><a href="#ps256ps384ps512のサポート">5.6. PS256、PS384、PS512のサポート</a></li>
+<li><a href="#safariのサポート">4.1. Safariのサポート</a></li>
+<li><a href="#chromeのresidentkey対応">4.2. ChromeのResidentKey対応</a></li>
+<li><a href="#firefoxのサポート">4.3. Firefoxのサポート</a></li>
+<li><a href="#ブラウザ間でのサポート状況の差異">4.4. ブラウザ間でのサポート状況の差異</a></li>
+<li><a href="#ecdaaのサポート">4.5. ECDAAのサポート</a></li>
+<li><a href="#ps256ps384ps512のサポート">4.6. PS256、PS384、PS512のサポート</a></li>
 </ul>
 </li>
 </ul>
@@ -877,52 +874,58 @@ WebAuthn4Jはいくつか <code>CertPathTrustworthinessValidator</code> イン�
 典型的には、 <code>Authenticator</code> をユーザーが識別するための名前フィールドの追加などが考えられるでしょう。</p>
 </div>
 </div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="詳細"><a class="anchor" href="#詳細"></a>4. 詳細</h2>
-<div class="sectionbody">
 <div class="sect2">
-<h3 id="project-modules"><a class="anchor" href="#project-modules"></a>4.1. Project Modules</h3>
+<h3 id="webauthn4jが提供しない機能"><a class="anchor" href="#webauthn4jが提供しない機能"></a>3.3. WebAuthn4Jが提供しない機能</h3>
+<div class="paragraph">
+<p>WebAuthn4Jは特定のフレームワークに依存しないポータビリティを実現する為、
+WebAuthnのAssertion/Attestationの検証に意図的に機能を絞り込んでおり、HTTPリクエストからのパラメータの取出、
+Challengeの発行・セッションへの保存、カウンタ値の検証は具備していません。
+使用する認証フレームワークに合わせて独自に実装して下さい。Spring Securityをご利用の場合は、
+Spring Security WebAuthnがそれらの認証フレームワーク特化の部分の実装を提供しますので活用をご検討下さい。
+== 詳細</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="project-modules"><a class="anchor" href="#project-modules"></a>3.4. Project Modules</h3>
 <div class="paragraph">
 <p>WebAuthn4Jは、以下の4つのModuleから構成されます。</p>
 </div>
 <div class="sect3">
-<h4 id="core-webauthn4j-core-jar"><a class="anchor" href="#core-webauthn4j-core-jar"></a>4.1.1. Core webauthn4j-core.jar</h4>
+<h4 id="core-webauthn4j-core-jar"><a class="anchor" href="#core-webauthn4j-core-jar"></a>3.4.1. Core webauthn4j-core.jar</h4>
 <div class="paragraph">
 <p>Attestation/Assertionの検証に関わるコア機能を提供します。</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="metadata-webauthn4j-metadata-jar"><a class="anchor" href="#metadata-webauthn4j-metadata-jar"></a>4.1.2. Metadata webauthn4j-metadata.jar</h4>
+<h4 id="metadata-webauthn4j-metadata-jar"><a class="anchor" href="#metadata-webauthn4j-metadata-jar"></a>3.4.2. Metadata webauthn4j-metadata.jar</h4>
 <div class="paragraph">
 <p>FIDO Metadata Serviceを用いたTrustAnchorの解決など、追加的な機能を提供します。</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="test-webauthn4j-test-jar"><a class="anchor" href="#test-webauthn4j-test-jar"></a>4.1.3. Test webauthn4j-test.jar</h4>
+<h4 id="test-webauthn4j-test-jar"><a class="anchor" href="#test-webauthn4j-test-jar"></a>3.4.3. Test webauthn4j-test.jar</h4>
 <div class="paragraph">
 <p>WebAuthn4Jのテストを行うための内部ライブラリです。含まれているクラスは、Publicであっても、セマンティックバージョニングに従わずに
 設計変更されることがあります。</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="util-webauthn4j-util-jar"><a class="anchor" href="#util-webauthn4j-util-jar"></a>4.1.4. Util webauthn4j-util.jar</h4>
+<h4 id="util-webauthn4j-util-jar"><a class="anchor" href="#util-webauthn4j-util-jar"></a>3.4.4. Util webauthn4j-util.jar</h4>
 <div class="paragraph">
 <p>WebAuthn4Jライブラリで使用されるユーティリティクラスをまとめたライブラリです。</p>
 </div>
 </div>
 </div>
 <div class="sect2">
-<h3 id="クラス"><a class="anchor" href="#クラス"></a>4.2. クラス</h3>
+<h3 id="クラス"><a class="anchor" href="#クラス"></a>3.5. クラス</h3>
 <div class="sect3">
-<h4 id="data-transfer-objects"><a class="anchor" href="#data-transfer-objects"></a>4.2.1. Data transfer Objects</h4>
+<h4 id="data-transfer-objects"><a class="anchor" href="#data-transfer-objects"></a>3.5.1. Data transfer Objects</h4>
 <div class="paragraph">
 <p><code>com.webauthn4j.data</code> パッケージ配下のクラスはイミュータブルなDTOとして設計されています。</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="converter-webauthnmodule"><a class="anchor" href="#converter-webauthnmodule"></a>4.2.2. Converter, WebAuthnModule</h4>
+<h4 id="converter-webauthnmodule"><a class="anchor" href="#converter-webauthnmodule"></a>3.5.2. Converter, WebAuthnModule</h4>
 <div class="paragraph">
 <p>データパッケージ配下のクラスはJacksonによってシリアライズ、デシリアライズ可能なように設計されています。
 一部のクラスはカスタムなシリアライザ、デシリアライザが必要であり、 <code>converter</code> パッケージ配下に集約されています。
@@ -934,14 +937,14 @@ WebAuthn4Jのシリアライザ、デシリアライザを使用したい場合�
 </div>
 </div>
 <div class="sect3">
-<h4 id="trustanchorsresolver"><a class="anchor" href="#trustanchorsresolver"></a>4.2.3. TrustAnchorsResolver</h4>
+<h4 id="trustanchorsresolver"><a class="anchor" href="#trustanchorsresolver"></a>3.5.3. TrustAnchorsResolver</h4>
 <div class="paragraph">
 <p><code>TrustAnchorsResolver</code> インタフェースは <code>TrustAnchorCertPathTrustworthinessValidator</code> で構成証明ステートメントの信頼性の
 検証を行う際に信頼するルート証明書のセットを探索するために使用されます。</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="trustanchorsprovider"><a class="anchor" href="#trustanchorsprovider"></a>4.2.4. TrustAnchorsProvider</h4>
+<h4 id="trustanchorsprovider"><a class="anchor" href="#trustanchorsprovider"></a>3.5.4. TrustAnchorsProvider</h4>
 <div class="paragraph">
 <p><code>TrustAnchorsProvider</code> インタフェースは前述の <code>TrustAnchorsResolver</code> インタフェースの実装である <code>TrustAnchorsResolverImpl</code>
 がTrustAnchorの読込処理を委譲する先のインタフェースです。実装としてJava Key StoreファイルからTrustAnchorを読み込む
@@ -950,14 +953,14 @@ TrustAnchorを読み込む <code>CertFileResourcesTrustAnchorProvider</code> が
 </div>
 </div>
 <div class="sect3">
-<h4 id="例外クラス"><a class="anchor" href="#例外クラス"></a>4.2.5. 例外クラス</h4>
+<h4 id="例外クラス"><a class="anchor" href="#例外クラス"></a>3.5.5. 例外クラス</h4>
 <div class="paragraph">
 <p>検証に失敗した場合、 <code>ValidationException</code> のサブクラスがスローされます。</p>
 </div>
 </div>
 </div>
 <div class="sect2">
-<h3 id="ログ"><a class="anchor" href="#ログ"></a>4.3. ログ</h3>
+<h3 id="ログ"><a class="anchor" href="#ログ"></a>3.6. ログ</h3>
 <div class="paragraph">
 <p>WebAuthn4JはSLF4Jをログインタフェースライブラリとして使用します。
 Logbackなどログ実装ライブラリを構成し、ログをお好みのスタイルで出力してください。</p>
@@ -966,14 +969,14 @@ Logbackなどログ実装ライブラリを構成し、ログをお好みのス�
 </div>
 </div>
 <div class="sect1">
-<h2 id="既知の問題"><a class="anchor" href="#既知の問題"></a>5. 既知の問題</h2>
+<h2 id="既知の問題"><a class="anchor" href="#既知の問題"></a>4. 既知の問題</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>WebAuthnは各ブラウザベンダが実装を進めている最中の新技術であり、仕様で定められていても、残念ながら実際の活用には制約がかかる場面もあります。
 本節では、2019/02現在のWebAuthnを活用する上での既知の問題を整理します。</p>
 </div>
 <div class="sect2">
-<h3 id="safariのサポート"><a class="anchor" href="#safariのサポート"></a>5.1. Safariのサポート</h3>
+<h3 id="safariのサポート"><a class="anchor" href="#safariのサポート"></a>4.1. Safariのサポート</h3>
 <div class="paragraph">
 <p>SafariのWebAuthnの対応は、未完了です。即ち、iPhone/iPadでWebAuthnは利用できません。
 SafariのTechnology Preview版でCTAP2 Authenticatorを利用したWebAuthnの対応がされましたが、Face IDやTouch IDの統合は完了していません。
@@ -981,7 +984,7 @@ SafariのTechnology Preview版でCTAP2 Authenticatorを利用したWebAuthnの�
 </div>
 </div>
 <div class="sect2">
-<h3 id="chromeのresidentkey対応"><a class="anchor" href="#chromeのresidentkey対応"></a>5.2. ChromeのResidentKey対応</h3>
+<h3 id="chromeのresidentkey対応"><a class="anchor" href="#chromeのresidentkey対応"></a>4.2. ChromeのResidentKey対応</h3>
 <div class="paragraph">
 <p>ChromeはResidentKey対応が完了していません。即ち、ユーザーに対して認証時のID入力を省いた認証体験を提供することは出来ません。</p>
 </div>
@@ -1000,7 +1003,7 @@ Roaming Authenticatorを利用して別デバイスで認証を行う場合に�
 </div>
 </div>
 <div class="sect2">
-<h3 id="firefoxのサポート"><a class="anchor" href="#firefoxのサポート"></a>5.3. Firefoxのサポート</h3>
+<h3 id="firefoxのサポート"><a class="anchor" href="#firefoxのサポート"></a>4.3. Firefoxのサポート</h3>
 <div class="paragraph">
 <p>Firefoxは現状、FIDO U2FのAuthenticatorのみに対応しています。CTAP2のAuthenticatorには対応していません。
 但し、Windows版ではOS標準のFIDO2 APIを活用した実装に今後切り替わる予定であり、そうなればCTAP2対応のAuthenticatorや
@@ -1008,7 +1011,7 @@ Windows Helloを活用した認証が出来るようになるでしょう。</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="ブラウザ間でのサポート状況の差異"><a class="anchor" href="#ブラウザ間でのサポート状況の差異"></a>5.4. ブラウザ間でのサポート状況の差異</h3>
+<h3 id="ブラウザ間でのサポート状況の差異"><a class="anchor" href="#ブラウザ間でのサポート状況の差異"></a>4.4. ブラウザ間でのサポート状況の差異</h3>
 <div class="paragraph">
 <p>各ブラウザ、WebAuthnへの対応が進みつつありますが、上記の通りサポート状況には差異があり、あるプラットフォームで
 サポートされている機能が別のプラットフォームでは利用できないことは珍しくなりません。
@@ -1017,14 +1020,14 @@ Safariユーザーを考慮してWebAuthn以外での二要素認証のサポー
 </div>
 </div>
 <div class="sect2">
-<h3 id="ecdaaのサポート"><a class="anchor" href="#ecdaaのサポート"></a>5.5. ECDAAのサポート</h3>
+<h3 id="ecdaaのサポート"><a class="anchor" href="#ecdaaのサポート"></a>4.5. ECDAAのサポート</h3>
 <div class="paragraph">
 <p>WebAuthn4JはECDAA(Elliptic Curve based Direct Anonymous Attestation)アルゴリズムをサポートしていません。
 ECDAAアルゴリズムはWebAuthn仕様でオプションとされており、主要ブラウザでもサポートされていない為、当面サポートする予定はありません。</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="ps256ps384ps512のサポート"><a class="anchor" href="#ps256ps384ps512のサポート"></a>5.6. PS256、PS384、PS512のサポート</h3>
+<h3 id="ps256ps384ps512のサポート"><a class="anchor" href="#ps256ps384ps512のサポート"></a>4.6. PS256、PS384、PS512のサポート</h3>
 <div class="paragraph">
 <p>WebAuthn4JはPS256、PS384、PS512アルゴリズムをサポートしていません。
 PS256、PS384、PS512アルゴリズムはWebAuthn仕様でオプションとされており、Java Crypto APIでも標準のProviderではサポートされていない為、
@@ -1037,7 +1040,7 @@ PS256、PS384、PS512アルゴリズムはWebAuthn仕様でオプションとさ
 <div id="footer">
 <div id="footer-text">
 Version 0.9.0-SNAPSHOT<br>
-Last updated 2019-03-22 11:03:52 UTC
+Last updated 2019-03-22 14:32:28 UTC
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">
