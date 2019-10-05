@@ -439,9 +439,9 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#known-issues">1. Known Issues</a>
 <ul class="sectlevel2">
 <li><a href="#safaris-webauthn-support">1.1. Safari&#8217;s WebAuthn support</a></li>
-<li><a href="#chromes-residentkey-support">1.2. Chrome&#8217;s ResidentKey support</a></li>
-<li><a href="#firefoxs-webauthn-support">1.3. Firefox&#8217;s WebAuthn support</a></li>
-<li><a href="#supporting-features-difference-between-browsers">1.4. Supporting features' difference between browsers</a></li>
+<li><a href="#androids-resident-key-support">1.2. Android&#8217;s resident key support</a></li>
+<li><a href="#firefox">1.3. Firefox</a></li>
+<li><a href="#implementation-differences-between-browsers">1.4. Implementation differences between browsers</a></li>
 <li><a href="#webauthn4js-ecdaa-support">1.5. WebAuthn4J&#8217;s ECDAA support</a></li>
 <li><a href="#webauthn4js-ps256ps384ps512-support">1.6. WebAuthn4J&#8217;s PS256/PS384/PS512 support</a></li>
 </ul>
@@ -470,10 +470,10 @@ Face ID and Touch ID. However, it seems to be expected to integrate them sooner 
 </div>
 </div>
 <div class="sect2">
-<h3 id="chromes-residentkey-support"><a class="anchor" href="#chromes-residentkey-support"></a>1.2. Chrome&#8217;s ResidentKey support</h3>
+<h3 id="androids-resident-key-support"><a class="anchor" href="#androids-resident-key-support"></a>1.2. Android&#8217;s resident key support</h3>
 <div class="paragraph">
-<p>Chrome has not yet supported ResidentKey, which means that you cannot use Chrome to experience authentication utilizing
-WebAuthn technology without entering your account&#8217;s ID</p>
+<p>Android&#8217;s FIDO API has not supported resident key yet. It means Chrome for Android and Firefox for Android
+don&#8217;t provide username-less authentication experience at the time of authentication.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -490,17 +490,14 @@ authentication. However, it doesn&#8217;t works if a user uses Roaming Authentic
 </div>
 </div>
 <div class="sect2">
-<h3 id="firefoxs-webauthn-support"><a class="anchor" href="#firefoxs-webauthn-support"></a>1.3. Firefox&#8217;s WebAuthn support</h3>
+<h3 id="firefox"><a class="anchor" href="#firefox"></a>1.3. Firefox</h3>
 <div class="paragraph">
-<p>Firefox has supported WebAuthn using FIDO U2F Authenticator, and not CTAP2 Authenticator.</p>
-</div>
-<div class="paragraph">
-<p>However, Windows' Firefox implementation plans to use FIDO2 API provided by Windows OS, which will makes users to
-experience authentication utilizing WebAuthn technology with CTAP2 Authenticator and Windows Hello.</p>
+<p>Firefox supports CTAP2 Authenticators by using OS standard WebAuthn API from Windows 10 1903.
+However, on macOS and Linux, only FIDO U2F authenticators are supported.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="supporting-features-difference-between-browsers"><a class="anchor" href="#supporting-features-difference-between-browsers"></a>1.4. Supporting features' difference between browsers</h3>
+<h3 id="implementation-differences-between-browsers"><a class="anchor" href="#implementation-differences-between-browsers"></a>1.4. Implementation differences between browsers</h3>
 <div class="paragraph">
 <p>Browser vendors has been struggling to support WebAuthn. However, it is nothing unusual that the feature supported
 by some platforms are not supported by other platforms. Considering it, it is recommended to prepare some fallback
@@ -534,7 +531,7 @@ have not yet supported it.</p>
 <div id="footer">
 <div id="footer-text">
 Version 0.9.14-SNAPSHOT<br>
-Last updated 2019-10-05 01:31:13 UTC
+Last updated 2019-10-05 02:41:15 UTC
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">

@@ -473,8 +473,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#既知の問題">4. 既知の問題</a>
 <ul class="sectlevel2">
 <li><a href="#safariのサポート">4.1. Safariのサポート</a></li>
-<li><a href="#chromeのresidentkey対応">4.2. ChromeのResidentKey対応</a></li>
-<li><a href="#firefoxのサポート">4.3. Firefoxのサポート</a></li>
+<li><a href="#androidのresidentkey対応">4.2. AndroidのResidentKey対応</a></li>
+<li><a href="#firefox">4.3. Firefox</a></li>
 <li><a href="#ブラウザ間でのサポート状況の差異">4.4. ブラウザ間でのサポート状況の差異</a></li>
 <li><a href="#ecdaaのサポート">4.5. ECDAAのサポート</a></li>
 <li><a href="#ps256ps384ps512のサポート">4.6. PS256、PS384、PS512のサポート</a></li>
@@ -973,20 +973,19 @@ Logbackなどログ実装ライブラリを構成し、ログをお好みのス�
 <div class="sectionbody">
 <div class="paragraph">
 <p>WebAuthnは各ブラウザベンダが実装を進めている最中の新技術であり、仕様で定められていても、残念ながら実際の活用には制約がかかる場面もあります。
-本節では、2019/02現在のWebAuthnを活用する上での既知の問題を整理します。</p>
+本節では、2019/10 現在のWebAuthnを活用する上での既知の問題を整理します。</p>
 </div>
 <div class="sect2">
 <h3 id="safariのサポート"><a class="anchor" href="#safariのサポート"></a>4.1. Safariのサポート</h3>
 <div class="paragraph">
-<p>SafariのWebAuthnの対応は、未完了です。即ち、iPhone/iPadでWebAuthnは利用できません。
-SafariのTechnology Preview版でCTAP2 Authenticatorを利用したWebAuthnの対応がされましたが、Face IDやTouch IDの統合は完了していません。
-とはいえ、遅かれ早かれ対応がされることでしょう。</p>
+<p>Safari 13からmacOSではWebAuthnのサポートが開始されましたが、iPhone/iPadでは現在、WebAuthnは利用できません。</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="chromeのresidentkey対応"><a class="anchor" href="#chromeのresidentkey対応"></a>4.2. ChromeのResidentKey対応</h3>
+<h3 id="androidのresidentkey対応"><a class="anchor" href="#androidのresidentkey対応"></a>4.2. AndroidのResidentKey対応</h3>
 <div class="paragraph">
-<p>ChromeはResidentKey対応が完了していません。即ち、ユーザーに対して認証時のID入力を省いた認証体験を提供することは出来ません。</p>
+<p>AndroidのFIDO APIはResidentKey対応が完了していません。即ち、Chrome for AndroidとFirefox for Androidでは
+ユーザーに対して認証時のID入力を省いた認証体験を提供することは出来ません。</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -1003,11 +1002,10 @@ Roaming Authenticatorを利用して別デバイスで認証を行う場合に�
 </div>
 </div>
 <div class="sect2">
-<h3 id="firefoxのサポート"><a class="anchor" href="#firefoxのサポート"></a>4.3. Firefoxのサポート</h3>
+<h3 id="firefox"><a class="anchor" href="#firefox"></a>4.3. Firefox</h3>
 <div class="paragraph">
-<p>Firefoxは現状、FIDO U2FのAuthenticatorのみに対応しています。CTAP2のAuthenticatorには対応していません。
-但し、Windows版ではOS標準のFIDO2 APIを活用した実装に今後切り替わる予定であり、そうなればCTAP2対応のAuthenticatorや
-Windows Helloを活用した認証が出来るようになるでしょう。</p>
+<p>FirefoxはWindows 10 1903からOS標準のWebAuthn APIを利用することでCTAP2のAuthenticatorに対応しています。
+但し、macOSや、Linuxでは、FIDO U2FのAuthenticatorのみに対応しています。</p>
 </div>
 </div>
 <div class="sect2">
@@ -1040,7 +1038,7 @@ PS256、PS384、PS512アルゴリズムはWebAuthn仕様でオプションとさ
 <div id="footer">
 <div id="footer-text">
 Version 0.9.14-SNAPSHOT<br>
-Last updated 2019-10-05 01:31:13 UTC
+Last updated 2019-10-05 02:41:15 UTC
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">
