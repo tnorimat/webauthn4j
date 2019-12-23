@@ -458,11 +458,11 @@ the data which contains signature and is sent at authentication is called "asser
 <div class="sect2">
 <h3 id="attestation-verification"><a class="anchor" href="#attestation-verification"></a>1.1. Attestation verification</h3>
 <div class="paragraph">
-<p>To verify an attestation on authenticator registration, call <code>WebAuthnRegistrationContextValidator#validate</code>.
-When invoking, you need to specify an instance of <code>WebAuthnRegistrationContext</code> as an argument.</p>
+<p>To validate an attestation on authenticator registration, call <code>WebAuthnManager#parseRegistrationRequest</code> to parse a registration request,
+and invoke <code>validate</code> method of the returned <code>WebAuthnRegistrationData</code> instance.</p>
 </div>
 <div class="paragraph">
-<p><code>ClientDataJSON</code> and <code>attestationObject</code>, specified as the argument of the constructor of <code>WebAuthnRegistrationContext</code>
+<p><code>ClientDataJSON</code> and <code>attestationObject</code>, specified as the argument of the constructor of <code>WebAuthnRegistrationRequest</code>
 are the value obtained by the WebAuthn JS API in the front end side.
 <code>serverProperty</code> is a parameter that houses values obtained from the server side. Please specify the following values​
 when calling the constructor.</p>
@@ -496,15 +496,16 @@ It is the application&#8217;s responsibility for retaining the issued Challenge.
 </div>
 <div class="paragraph">
 <p>If validation fails, an exception inheriting <code>ValidationException</code> is thrown.
-If validation succeeds, <code>WebAuthnRegistrationContextValidationResponse</code> is returned.
-Please create an <code>Authenticator</code> instance from the returned value and persist it to the database or something in your
-application manner. The instance is required at the time of authentication.</p>
+If validation succeeds, please create an <code>Authenticator</code> instance from the returned value and persist it to the database
+or something in your application manner. The instance is required at the time of authentication.</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-java" data-lang="java">// Client properties
-byte[] clientDataJSON = null /* set clientDataJSON */;
 byte[] attestationObject = null /* set attestationObject */;
+byte[] clientDataJSON = null /* set clientDataJSON */;
+String clientExtensionJSON = null;  /* set clientExtensionJSON */;
+Set&lt;String&gt; transports = null /* set transports */;
 
 // Server properties
 Origin origin = null /* set origin */;
@@ -512,26 +513,36 @@ String rpId = null /* set rpId */;
 Challenge challenge = null /* set challenge */;
 byte[] tokenBindingId = null /* set tokenBindingId */;
 ServerProperty serverProperty = new ServerProperty(origin, rpId, challenge, tokenBindingId);
+
+// expectations
 boolean userVerificationRequired = false;
+boolean userPresenceRequired = true;
+List&lt;String&gt; expectedExtensionIds = Collections.emptyList();
 
-WebAuthnRegistrationContext registrationContext = new WebAuthnRegistrationContext(clientDataJSON, attestationObject, serverProperty, userVerificationRequired);
-
-// WebAuthnRegistrationContextValidator.createNonStrictRegistrationContextValidator() returns a WebAuthnRegistrationContextValidator instance
-// which doesn't validate an attestation statement. It is recommended configuration for most web application.
-// If you are building enterprise web application and need to validate the attestation statement, use the constructor of
-// WebAuthnRegistrationContextValidator and provide validators you like
-WebAuthnRegistrationContextValidator webAuthnRegistrationContextValidator =
-        WebAuthnRegistrationContextValidator.createNonStrictRegistrationContextValidator();
-
-
-WebAuthnRegistrationContextValidationResponse response = webAuthnRegistrationContextValidator.validate(registrationContext);
+WebAuthnRegistrationRequest webAuthnRegistrationRequest = new WebAuthnRegistrationRequest(attestationObject, clientDataJSON, clientExtensionJSON, transports);
+WebAuthnRegistrationParameters webAuthnRegistrationParameters = new WebAuthnRegistrationParameters(serverProperty, userVerificationRequired, userPresenceRequired, expectedExtensionIds);
+WebAuthnRegistrationData webAuthnRegistrationData;
+try{
+    webAuthnRegistrationData = webAuthnManager.parseRegistrationRequest(webAuthnRegistrationRequest);
+}
+catch (DataConversionException e){
+    // If you would like to handle WebAuthn data structure parse error, please catch DataConversionException
+    throw e;
+}
+try{
+    webAuthnRegistrationData.validate(webAuthnRegistrationParameters);
+}
+catch (ValidationException e){
+    // If you would like to handle WebAuthn data validation error, please catch ValidationException
+    throw e;
+}
 
 // please persist Authenticator object, which will be used in the authentication process.
 Authenticator authenticator =
         new AuthenticatorImpl( // You may create your own Authenticator implementation to save friendly authenticator name
-                response.getAttestationObject().getAuthenticatorData().getAttestedCredentialData(),
-                response.getAttestationObject().getAttestationStatement(),
-                response.getAttestationObject().getAuthenticatorData().getSignCount()
+                webAuthnRegistrationData.getAttestationObject().getAuthenticatorData().getAttestedCredentialData(),
+                webAuthnRegistrationData.getAttestationObject().getAttestationStatement(),
+                webAuthnRegistrationData.getAttestationObject().getAuthenticatorData().getSignCount()
         );
 save(authenticator); // please persist authenticator in your manner</code></pre>
 </div>
@@ -540,14 +551,23 @@ save(authenticator); // please persist authenticator in your manner</code></pre>
 <div class="sect2">
 <h3 id="assertion-verification"><a class="anchor" href="#assertion-verification"></a>1.2. Assertion verification</h3>
 <div class="paragraph">
-<p>To verify an assertion on authentication, call <code>WebAuthnAuthenticationContextValidator#validate</code>.</p>
+<p>To validate an assertion on authentication, call <code>WebAuthnManager#parseAuthenticationRequest</code> to parse a authentication request,
+and invoke <code>validate</code> method of the returned <code>WebAuthnAuthenticationData</code> instance.</p>
+</div>
+<div class="paragraph">
+<p><code>credentialId</code>, <code>userHandle</code>, <code>authenticatorData</code>, <code>clientDataJSON</code>, and <code>clientExtensionJSON</code>, specified as the argument of
+the constructor of <code>WebAuthnAuthenticationRequest</code> are the value obtained by the WebAuthn JS API in the front end side.
+<code>serverProperty</code> is a parameter that houses values obtained from the server side. Please specify the following values​
+when calling the constructor.</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-java" data-lang="java">// Client properties
 byte[] credentialId = null /* set credentialId */;
-byte[] clientDataJSON = null /* set clientDataJSON */;
+byte[] userHandle = null /* set userHandle */;
 byte[] authenticatorData = null /* set authenticatorData */;
+byte[] clientDataJSON = null /* set clientDataJSON */;
+String clientExtensionJSON = null /* set clientExtensionJSON */;
 byte[] signature = null /* set signature */;
 
 // Server properties
@@ -556,28 +576,51 @@ String rpId = null /* set rpId */;
 Challenge challenge = null /* set challenge */;
 byte[] tokenBindingId = null /* set tokenBindingId */;
 ServerProperty serverProperty = new ServerProperty(origin, rpId, challenge, tokenBindingId);
-boolean userVerificationRequired = true;
 
-WebAuthnAuthenticationContext authenticationContext =
-        new WebAuthnAuthenticationContext(
-                credentialId,
-                clientDataJSON,
-                authenticatorData,
-                signature,
-                serverProperty,
-                userVerificationRequired
-        );
+// expectations
+boolean userVerificationRequired = true;
+boolean userPresenceRequired = true;
+List&lt;String&gt; expectedExtensionIds = Collections.emptyList();
+
 Authenticator authenticator = load(credentialId); // please load authenticator object persisted in the registration process in your manner
 
-WebAuthnAuthenticationContextValidator webAuthnAuthenticationContextValidator =
-        new WebAuthnAuthenticationContextValidator();
+WebAuthnAuthenticationRequest webAuthnAuthenticationRequest =
+        new WebAuthnAuthenticationRequest(
+                credentialId,
+                userHandle,
+                authenticatorData,
+                clientDataJSON,
+                clientExtensionJSON,
+                signature
+        );
+WebAuthnAuthenticationParameters webAuthnAuthenticationParameters =
+        new WebAuthnAuthenticationParameters(
+                serverProperty,
+                authenticator,
+                userVerificationRequired,
+                userPresenceRequired,
+                expectedExtensionIds
+        );
 
-WebAuthnAuthenticationContextValidationResponse response = webAuthnAuthenticationContextValidator.validate(authenticationContext, authenticator);
-
+WebAuthnAuthenticationData webAuthnAuthenticationData;
+try{
+    webAuthnAuthenticationData = webAuthnManager.parseAuthenticationRequest(webAuthnAuthenticationRequest);
+}
+catch (DataConversionException e){
+    // If you would like to handle WebAuthn data structure parse error, please catch DataConversionException
+    throw e;
+}
+try{
+    webAuthnAuthenticationData.validate(webAuthnAuthenticationParameters);
+}
+catch (ValidationException e){
+    // If you would like to handle WebAuthn data validation error, please catch ValidationException
+    throw e;
+}
 // please update the counter of the authenticator record
 updateCounter(
-        response.getAuthenticatorData().getAttestedCredentialData().getCredentialId(),
-        response.getAuthenticatorData().getSignCount()
+        webAuthnAuthenticationData.getAuthenticatorData().getAttestedCredentialData().getCredentialId(),
+        webAuthnAuthenticationData.getAuthenticatorData().getSignCount()
 );</code></pre>
 </div>
 </div>
@@ -588,7 +631,7 @@ updateCounter(
 <div id="footer">
 <div id="footer-text">
 Version 0.10.0-SNAPSHOT<br>
-Last updated 2019-12-23 13:47:44 UTC
+Last updated 2019-12-23 15:43:49 UTC
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">
