@@ -439,7 +439,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#デザインノート">1. デザインノート</a>
 <ul class="sectlevel2">
 <li><a href="#各クラスの責務分担">1.1. 各クラスの責務分担</a></li>
-<li><a href="#何故-webauthnauthenticationcontext-に-authenticator-を含めないのか">1.2. 何故 <code>WebAuthnAuthenticationContext</code> に <code>Authenticator</code> を含めないのか</a></li>
 </ul>
 </li>
 </ul>
@@ -452,13 +451,20 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sect2">
 <h3 id="各クラスの責務分担"><a class="anchor" href="#各クラスの責務分担"></a>1.1. 各クラスの責務分担</h3>
 <div class="sect3">
-<h4 id="registry"><a class="anchor" href="#registry"></a>1.1.1. <code>Registry</code></h4>
+<h4 id="webauthnregistrationrequest-webauthnauthenticationrequest"><a class="anchor" href="#webauthnregistrationrequest-webauthnauthenticationrequest"></a>1.1.1. <code>WebAuthnRegistrationRequest</code>, <code>WebAuthnAuthenticationRequest</code></h4>
 <div class="paragraph">
-<p>ObjectMapperなど、外部からインスタンスを登録したい対象を登録するクラス</p>
+<p>登録時、認証時にWebAuthn APIを通じてブラウザから取得するパラメータを集めたクラス</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="serverproperty"><a class="anchor" href="#serverproperty"></a>1.1.2. <code>ServerProperty</code></h4>
+<h4 id="webauthnregistrationparameters-webauthnauthenticationparameters"><a class="anchor" href="#webauthnregistrationparameters-webauthnauthenticationparameters"></a>1.1.2. <code>WebAuthnRegistrationParameters</code>, <code>WebAuthnAuthenticationParameters</code></h4>
+<div class="paragraph">
+<p>登録時、認証時に必要なその他の条件（サーバーの状態や、認証対象の永続化されたAuthenticator、期待される検証条件など）を
+集めたクラス</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="serverproperty"><a class="anchor" href="#serverproperty"></a>1.1.3. <code>ServerProperty</code></h4>
 <div class="paragraph">
 <p>バリデーション実施にあたり、サーバー側で関係するプロパティを渡すためのDTO</p>
 </div>
@@ -468,20 +474,13 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 </div>
-<div class="sect2">
-<h3 id="何故-webauthnauthenticationcontext-に-authenticator-を含めないのか"><a class="anchor" href="#何故-webauthnauthenticationcontext-に-authenticator-を含めないのか"></a>1.2. 何故 <code>WebAuthnAuthenticationContext</code> に <code>Authenticator</code> を含めないのか</h3>
-<div class="paragraph">
-<p><code>WebAuthnAuthenticationContext</code> はimmutableなクラスとして設計されていますが、 <code>Authenticator</code> はmutableなクラスとして
-設計されている為、 <code>WebAuthnAuthenticationContext</code> のフィールドとはしていません。</p>
-</div>
-</div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
 Version 0.10.0-SNAPSHOT<br>
-Last updated 2019-12-27 16:08:33 UTC
+Last updated 2019-12-28 11:57:03 UTC
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">

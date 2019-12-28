@@ -451,33 +451,28 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="設定"><a class="anchor" href="#設定"></a>1. 設定</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>WebAuthn4Jを利用する上で中心となるクラスは2つ存在します。1つは登録時に資格情報を検証する
-<code>WebAuthnRegistrationContextValidator</code> クラスで、もう1つは認証時に資格情報を検証する
-<code>WebAuthnAuthenticationContextValidator</code> クラスです。</p>
-</div>
-<div class="paragraph">
-<p><code>WebAuthnRegistrationContextValidator</code> は構成証明ステートメントの署名と信頼性の検証は、
+<p>WebAuthn4Jを利用する上で中心となるクラスは <code>WebAuthnManager</code> クラスです。
+<code>WebAuthnManager</code> は登録リクエスト検証時の構成証明ステートメントの署名と信頼性の検証は、
 それぞれ <code>AttestationStatementValidator</code> と <code>CertPathTrustworthinessValidator</code> インタフェースの実装に委譲します。</p>
 </div>
 <div class="paragraph">
-<p>大多数のサイトは厳密な構成証明ステートメントの検証を必要としないでしょうから（
+<p>大多数のサイトは厳密な構成証明ステートメントの検証を必要としないことから（
 <a href="https://www.w3.org/TR/webauthn-1/#sctn-no-attestation-security-attestation">WebAuthn仕様書関連個所参照</a> ）、
 WebAuthn4Jでは構成証明ステートメントの検証をしないように <code>AttestationStatementValidator</code> と
-<code>CertPathTrustworthinessValidator</code> を構成した <code>WebAuthnRegistrationContextValidator</code> のインスタンスを返却する
-<code>WebAuthnRegistrationContextValidator.createNonStrictRegistrationContextValidator</code> ファクトリメソッドを用意しています。</p>
+<code>CertPathTrustworthinessValidator</code> を構成した <code>WebAuthnManager</code> のインスタンスを返却する
+<code>WebAuthnManager.createNonStrictWebAuthnManager</code> ファクトリメソッドを用意しています。</p>
 </div>
 <div class="paragraph">
 <p>もし、エンタープライズなユースケースで、認証デバイスの厳密な検証が要件である場合は、
-<code>WebAuthnRegistrationContextValidator</code> クラスのコンストラクタを用いて
-<code>AttestationStatementValidator</code> と <code>CertPathTrustworthinessValidator</code> の実装をコンストラクタインジェクションして
-構成して下さい。</p>
+<code>WebAuthnManager</code> クラスのコンストラクタを用いて <code>AttestationStatementValidator</code> と <code>CertPathTrustworthinessValidator</code>
+の実装をコンストラクタインジェクションして構成して下さい。</p>
 </div>
 <div class="sect2">
 <h3 id="構成証明ステートメントの検証"><a class="anchor" href="#構成証明ステートメントの検証"></a>1.1. 構成証明ステートメントの検証</h3>
 <div class="paragraph">
 <p>構成証明ステートメントの検証は、 <code>AttestationStatementValidator</code> インタフェースの実装クラスが提供します。
 構成照明ステートメント毎に、対応する実装クラスが提供されていますので、必要なValidatorからなるListを
-<code>WebAuthnRegistrationContextValidator</code> クラスのコンストラクタに指定して下さい。
+<code>WebAuthnManager</code> クラスのコンストラクタに指定して下さい。
 例えば、 <code>packed</code> のみをサポートする場合は、 <code>PackedAttestationStatementValidator</code> を唯一の要素とするListとし、
 例えば、 <code>packed</code>, <code>tpm</code> をサポートする場合は、 <code>PackedAttestationStatementValidator</code> と <code>TPMAttestationStatementValidator</code>
 からなるListを指定して下さい。</p>
@@ -490,20 +485,47 @@ WebAuthn4Jでは構成証明ステートメントの検証をしないように 
 ECDAAの場合は <code>ECDAATrustworthinessValidator</code> インタフェースの実装に検証が委譲されます。
 WebAuthn4Jはいくつか <code>CertPathTrustworthinessValidator</code> インタフェースの実装を提供しており、
 例えば <code>TrustAnchorCertPathTrustworthinessValidator</code> は <code>TrustAnchorResolver</code> インタフェースを通じて取得した
-<code>TrustAnchor</code> をルート証明書として証明書パスの検証を行うことで構成証明ステートメントの信頼性の検証を行います。</p>
+<code>TrustAnchor</code> をトラストアンカーの証明書として証明書パスの検証を行うことで構成証明ステートメントの信頼性の検証を行います。</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="トラストアンカーの取得"><a class="anchor" href="#トラストアンカーの取得"></a>1.1.2. トラストアンカーの取得</h4>
+<div class="paragraph">
+<p>前節で <code>TrustAnchorResolver</code> インタフェースがトラストアンカーの取得に使用されると述べましたが、
+WebAuthn4Jでは、 <code>TrustAnchorResolver</code> の実装として、<code>TrustAnchorResolverImpl</code> を提供しています。
+<code>TrustAnchorResolverImpl</code> は、トラストアンカーの取得を更に <code>TrustAnchorsProvider</code> に委譲しています。
+<code>TrustAnchorsProvider</code> の実装としては、Java Key Storeファイルからトラストアンカーを取得する <code>KeyStoreTrustAnchorsProvider</code> や、
+<a href="https://fidoalliance.org/specs/fido-v2.0-rd-20180702/fido-metadata-statement-v2.0-rd-20180702.html">FIDO メタデータステートメント</a>
+からトラストアンカーを取得する <code>MetadataStatementsTrustAnchorsProvider</code> が提供されています。</p>
 </div>
 <div class="sect4">
-<h5 id="fido-metadata-serviceを用いた構成証明ステートメントの信頼性の検証"><a class="anchor" href="#fido-metadata-serviceを用いた構成証明ステートメントの信頼性の検証"></a>FIDO Metadata Serviceを用いた構成証明ステートメントの信頼性の検証</h5>
+<h5 id="fido-metadata-serviceを用いたトラストアンカーの取得"><a class="anchor" href="#fido-metadata-serviceを用いたトラストアンカーの取得"></a>FIDO Metadata Serviceを用いたトラストアンカーの取得</h5>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+FIDO Metadata Statement関連の機能を提供する <code>webauthn4j-meta</code> モジュールは実験的な提供段階です。
+</td>
+</tr>
+</table>
+</div>
 <div class="paragraph">
 <p>FIDO Allianceでは、FIDO Metadata Serviceという、認証デバイスのメタデータを配信するサービスを提供しています。
-このサービスを利用することにより、登録しようとしている認証デバイスで、セキュリティ上の問題が報告されていないか
-チェックすることが可能です。FIDO Metadata Serviceを用いて構成証明ステートメントの信頼性の検証を行う場合、
-<code>CertPathTrustworthinessValidator</code> の実装として <code>webauthn4j-metadata</code> モジュールの
-<code>MetadataItemsCertPathTrustworthinessValidator</code> を使用して下さい。<code>MetadataItemsCertPathTrustworthinessValidator</code> は
-<code>MetadataItemsResolver</code> インタフェースを通じて認証デバイスのAAGUIDに対応する <code>MetadataItem</code> リストを解決しますので、
-<code>MetadataItemsResolverImpl</code> と <code>FidoMdsMetadataItemsProvider</code> を組み合わせて使うことで、FIDO Metadata Serviceによる
-信頼性の検証を行うことが可能です。</p>
+このサービスに登録された認証デバイスの情報を活用するために、<code>FidoMdsMetadataItemsProvider</code> というクラスが提供されています。
+これは、<code>MetadataItemsMetadataStatementsProvider</code> などと組み合わせることでトラストアンカーの取得に使用できます。</p>
 </div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="fido-metadata-serviceを用いた認証デバイスの脆弱性情報のチェック"><a class="anchor" href="#fido-metadata-serviceを用いた認証デバイスの脆弱性情報のチェック"></a>1.1.3. FIDO Metadata Serviceを用いた認証デバイスの脆弱性情報のチェック</h4>
+<div class="paragraph">
+<p><code>FidoMdsMetadataValidator</code> を用いてメタデータのステータスから、登録しようとしている認証デバイスで、
+セキュリティ上の問題が報告されていないかチェックすることも可能です。
+<code>FidoMdsMetadataValidator</code> は、 <code>CustomRegistrationValidator</code> の実装ですので、
+<a href="_./deep-dive.html#カスタム検証ロジックの登録">カスタム検証ロジックの登録</a> を参考に使用して下さい。</p>
 </div>
 </div>
 </div>
@@ -511,7 +533,7 @@ WebAuthn4Jはいくつか <code>CertPathTrustworthinessValidator</code> イン�
 <h3 id="認証デバイスの表現"><a class="anchor" href="#認証デバイスの表現"></a>1.2. 認証デバイスの表現</h3>
 <div class="paragraph">
 <p>認証デバイスを表現するインタフェースとして、 <code>Authenticator</code> インタフェースが存在します。
-登録時に、 <code>WebAuthnRegistrationContextValidationResponse</code> クラスが含む値を用いて <code>Authenticator</code> インタフェースの
+登録時に、 <code>WebAuthnRegistrationData</code> クラスが含む値を用いて <code>Authenticator</code> インタフェースの
 インスタンスを作成し、アプリケーションの作法に則り永続化してください。認証時の検証に必要となります。
 なお、永続化する際は、検索する際の利便性を考え、credentialIdをキーに永続化すると良いでしょう。
 <code>Authenticator</code> インタフェースの実装クラスを設計する際は、アプリケーションの要件に合わせて拡張すると良いでしょう。
@@ -534,7 +556,7 @@ Spring Security WebAuthnがそれらの認証フレームワーク特化の部�
 <div id="footer">
 <div id="footer-text">
 Version 0.10.0-SNAPSHOT<br>
-Last updated 2019-12-27 16:08:33 UTC
+Last updated 2019-12-28 11:57:03 UTC
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">

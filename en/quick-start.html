@@ -458,14 +458,22 @@ the data which contains signature and is sent at authentication is called "asser
 <div class="sect2">
 <h3 id="attestation-verification"><a class="anchor" href="#attestation-verification"></a>1.1. Attestation verification</h3>
 <div class="paragraph">
-<p>To validate an attestation on authenticator registration, call <code>WebAuthnManager#parseRegistrationRequest</code> to parse a registration request,
-and invoke <code>validate</code> method of the returned <code>WebAuthnRegistrationData</code> instance.</p>
+<p>To validate an attestation on authenticator registration, call <code>WebAuthnManager#validate</code> with a
+<code>WebAuthnRegistrationRequest</code> instance as an argument.
+If you would like to access the parsed data when an validation error occurred, please use <code>WebAuthnManager#parse</code> to
+parse the registration request and pass the returned <code>WebAuthnRegistrationData</code> instance to <code>WebAuthnManager#validate</code>
+method.</p>
 </div>
 <div class="paragraph">
-<p><code>ClientDataJSON</code> and <code>attestationObject</code>, specified as the argument of the constructor of <code>WebAuthnRegistrationRequest</code>
-are the value obtained by the WebAuthn JS API in the front end side.
-<code>serverProperty</code> is a parameter that houses values obtained from the server side. Please specify the following values​
-when calling the constructor.</p>
+<p>The members of <code>WebAuthnRegistrationRequest</code> are the values obtained by the WebAuthn JS API in the front end side.
+Transmit from the front end side to the server side in some way.</p>
+</div>
+<div class="paragraph">
+<p><code>WebAuthnRegistrationParameters</code> is an another argument for <code>WebAuthnManager#parse</code> method, and contains
+server property and validation conditions.</p>
+</div>
+<div class="paragraph">
+<p><code>serverProperty</code> has following members.</p>
 </div>
 <div class="ulist">
 <ul>
@@ -490,9 +498,6 @@ It is the application&#8217;s responsibility for retaining the issued Challenge.
 <p><code>tokenBindingId</code> is a parameter for Token binding. If you do not want to use it please specify <code>null</code>.</p>
 </li>
 </ul>
-</div>
-<div class="paragraph">
-<p><code>userVerificationRequired</code> is a parameter that indicates whether the user verification on the authenticator is required.</p>
 </div>
 <div class="paragraph">
 <p>If validation fails, an exception inheriting <code>ValidationException</code> is thrown.
@@ -523,14 +528,14 @@ WebAuthnRegistrationRequest webAuthnRegistrationRequest = new WebAuthnRegistrati
 WebAuthnRegistrationParameters webAuthnRegistrationParameters = new WebAuthnRegistrationParameters(serverProperty, userVerificationRequired, userPresenceRequired, expectedExtensionIds);
 WebAuthnRegistrationData webAuthnRegistrationData;
 try{
-    webAuthnRegistrationData = webAuthnManager.parseRegistrationRequest(webAuthnRegistrationRequest);
+    webAuthnRegistrationData = webAuthnManager.parse(webAuthnRegistrationRequest);
 }
 catch (DataConversionException e){
     // If you would like to handle WebAuthn data structure parse error, please catch DataConversionException
     throw e;
 }
 try{
-    webAuthnRegistrationData.validate(webAuthnRegistrationParameters);
+    webAuthnManager.validate(webAuthnRegistrationData, webAuthnRegistrationParameters);
 }
 catch (ValidationException e){
     // If you would like to handle WebAuthn data validation error, please catch ValidationException
@@ -551,14 +556,18 @@ save(authenticator); // please persist authenticator in your manner</code></pre>
 <div class="sect2">
 <h3 id="assertion-verification"><a class="anchor" href="#assertion-verification"></a>1.2. Assertion verification</h3>
 <div class="paragraph">
-<p>To validate an assertion on authentication, call <code>WebAuthnManager#parseAuthenticationRequest</code> to parse a authentication request,
-and invoke <code>validate</code> method of the returned <code>WebAuthnAuthenticationData</code> instance.</p>
+<p>To parse and validate an assertion on authentication, call <code>WebAuthnManager#parse</code> with a <code>WebAuthnRegistrationRequest</code>
+instance as an argument. If you would like to access the parsed data when an validation error occurred, please use
+<code>WebAuthnManager#parse</code> to parse the authentication request and pass the returned <code>WebAuthnAuthenticationData</code> instance
+to <code>WebAuthnManager#validate</code> method.</p>
 </div>
 <div class="paragraph">
-<p><code>credentialId</code>, <code>userHandle</code>, <code>authenticatorData</code>, <code>clientDataJSON</code>, and <code>clientExtensionJSON</code>, specified as the argument of
-the constructor of <code>WebAuthnAuthenticationRequest</code> are the value obtained by the WebAuthn JS API in the front end side.
-<code>serverProperty</code> is a parameter that houses values obtained from the server side. Please specify the following values​
-when calling the constructor.</p>
+<p>The members of <code>WebAuthnAuthenticationRequest</code> are the values obtained by the WebAuthn JS API in the front end side.
+Transmit from the front end side to the server side in some way.</p>
+</div>
+<div class="paragraph">
+<p>WebAuthnAuthenticationParameters is an another argument for WebAuthnManager#parse method,
+and contains server property, persisted authenticator and validation conditions.</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -604,14 +613,14 @@ WebAuthnAuthenticationParameters webAuthnAuthenticationParameters =
 
 WebAuthnAuthenticationData webAuthnAuthenticationData;
 try{
-    webAuthnAuthenticationData = webAuthnManager.parseAuthenticationRequest(webAuthnAuthenticationRequest);
+    webAuthnAuthenticationData = webAuthnManager.parse(webAuthnAuthenticationRequest);
 }
 catch (DataConversionException e){
     // If you would like to handle WebAuthn data structure parse error, please catch DataConversionException
     throw e;
 }
 try{
-    webAuthnAuthenticationData.validate(webAuthnAuthenticationParameters);
+    webAuthnManager.validate(webAuthnAuthenticationData, webAuthnAuthenticationParameters);
 }
 catch (ValidationException e){
     // If you would like to handle WebAuthn data validation error, please catch ValidationException
@@ -631,7 +640,7 @@ updateCounter(
 <div id="footer">
 <div id="footer-text">
 Version 0.10.0-SNAPSHOT<br>
-Last updated 2019-12-27 16:08:33 UTC
+Last updated 2019-12-28 11:57:03 UTC
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">

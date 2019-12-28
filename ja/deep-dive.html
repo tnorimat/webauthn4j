@@ -439,8 +439,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#詳細">1. 詳細</a>
 <ul class="sectlevel2">
 <li><a href="#project-modules">1.1. Project Modules</a></li>
-<li><a href="#クラス">1.2. クラス</a></li>
-<li><a href="#ログ">1.3. ログ</a></li>
+<li><a href="#カスタムなデータ変換ロジックの実装">1.2. カスタムなデータ変換ロジックの実装</a></li>
+<li><a href="#カスタムな検証ロジックの実装">1.3. カスタムな検証ロジックの実装</a></li>
+<li><a href="#クラス">1.4. クラス</a></li>
+<li><a href="#ログ">1.5. ログ</a></li>
 </ul>
 </li>
 </ul>
@@ -464,14 +466,16 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sect3">
 <h4 id="metadata-webauthn4j-metadata-jar"><a class="anchor" href="#metadata-webauthn4j-metadata-jar"></a>1.1.2. Metadata webauthn4j-metadata.jar</h4>
 <div class="paragraph">
-<p>FIDO Metadata Serviceを用いたTrustAnchorの解決など、追加的な機能を提供します。</p>
+<p>FIDO Metadata Serviceを用いたTrustAnchorの解決など、追加的な機能を提供します。
+依拠しているFIDO Metadata Statements仕様がドラフトの為、実験的な提供です。
+含まれているクラスは、Publicであっても、セマンティックバージョニングに従わずに破壊的変更が入る場合があります。</p>
 </div>
 </div>
 <div class="sect3">
 <h4 id="test-webauthn4j-test-jar"><a class="anchor" href="#test-webauthn4j-test-jar"></a>1.1.3. Test webauthn4j-test.jar</h4>
 <div class="paragraph">
 <p>WebAuthn4Jのテストを行うための内部ライブラリです。含まれているクラスは、Publicであっても、セマンティックバージョニングに従わずに
-設計変更されることがあります。</p>
+破壊的変更が入る場合があります。</p>
 </div>
 </div>
 <div class="sect3">
@@ -482,34 +486,64 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect2">
-<h3 id="クラス"><a class="anchor" href="#クラス"></a>1.2. クラス</h3>
+<h3 id="カスタムなデータ変換ロジックの実装"><a class="anchor" href="#カスタムなデータ変換ロジックの実装"></a>1.2. カスタムなデータ変換ロジックの実装</h3>
+<div class="paragraph">
+<p>WebAuthn4Jでは、JSONやCBORのシリアライズ、デシリアライズ処理にJacksonライブラリを使用しています。
+Client ExtensionやAuthenticator Extensionのデータ変換でカスタムな変換を行いたい場合、WebAuthn4Jが内部で使用している
+Jacksonの <code>ObjectMapper</code> にカスタムなシリアライザ、デシリアライザを登録することで実現できます。</p>
+</div>
 <div class="sect3">
-<h4 id="data-transfer-objects"><a class="anchor" href="#data-transfer-objects"></a>1.2.1. Data transfer Objects</h4>
+<h4 id="カスタムなデータ変換ロジックの登録"><a class="anchor" href="#カスタムなデータ変換ロジックの登録"></a>1.2.1. カスタムなデータ変換ロジックの登録</h4>
+<div class="paragraph">
+<p>WebAuthn4Jは、Jacksonの <code>ObjectMapper</code> を <code>ObjectConverter</code> というクラスでラップして使用しており、
+カスタムなシリアライザ、デシリアライザを登録した <code>ObjectMapper</code> を <code>ObjectConverter</code> インスタンス作成時にコンストラクタから
+インジェクトし、その <code>ObjectConverter</code> を <code>WebAuthnManager</code> のインスタンス作成時にパラメータとして指定してください。</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="カスタムな検証ロジックの実装"><a class="anchor" href="#カスタムな検証ロジックの実装"></a>1.3. カスタムな検証ロジックの実装</h3>
+<div class="paragraph">
+<p>WebAuthn4Jでは、カスタムな検証ロジックを実装し、追加することが可能です。
+登録時の検証にカスタムロジックを追加する場合は、 <code>CustomRegistrationValidator</code> を実装してください。
+認証時の検証にカスタムロジックを追加する場合は、 <code>CustomAuthenticationValidator</code> を実装してください。</p>
+</div>
+<div class="sect3">
+<h4 id="カスタム検証ロジックの登録"><a class="anchor" href="#カスタム検証ロジックの登録"></a>1.3.1. カスタム検証ロジックの登録</h4>
+<div class="paragraph">
+<p><code>CustomRegistrationValidator</code> と <code>CustomAuthenticationValidator</code> の実装は <code>WebAuthnManager</code> のコンストラクタの
+<code>customRegistrationValidators</code> パラメータおよび <code>customAuthenticationValidators</code> パラメータを通じて登録することが出来ます。</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="クラス"><a class="anchor" href="#クラス"></a>1.4. クラス</h3>
+<div class="sect3">
+<h4 id="data-transfer-objects"><a class="anchor" href="#data-transfer-objects"></a>1.4.1. Data transfer Objects</h4>
 <div class="paragraph">
 <p><code>com.webauthn4j.data</code> パッケージ配下のクラスはイミュータブルなDTOとして設計されています。</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="converter-webauthnmodule"><a class="anchor" href="#converter-webauthnmodule"></a>1.2.2. Converter, WebAuthnModule</h4>
+<h4 id="converter-webauthnmodule"><a class="anchor" href="#converter-webauthnmodule"></a>1.4.2. Converter, WebAuthnModule</h4>
 <div class="paragraph">
 <p>データパッケージ配下のクラスはJacksonによってシリアライズ、デシリアライズ可能なように設計されています。
 一部のクラスはカスタムなシリアライザ、デシリアライザが必要であり、 <code>converter</code> パッケージ配下に集約されています。
 カスタムシリアライザ、デシリアライザは <code>WebAuthnJSONModule</code> と <code>WebAuthnCBORModule</code> というJacksonのModuleにまとめられています。
-WebAuthn4JのValidatorは内部で使用するJacksonの <code>ObjectMapper</code> に自動で <code>WebAuthnModule</code> を適用しますが、Validatorの外部で
+WebAuthn4Jは内部で使用するJacksonの <code>ObjectMapper</code> に自動で <code>WebAuthnModule</code> を適用しますが、<code>WebAuthnManager</code> の外部で
 WebAuthn4Jのシリアライザ、デシリアライザを使用したい場合は、Jacksonの <code>ObjectMapper</code> に <code>WebAuthnModule</code> を登録すると
-良いでしょう。もしWebAuthn4JのValidatorでカスタムなシリアライザ、デシリアライザを使用したい場合は、WebAuthn4JのValidator
-のコンストラクタに、カスタムなシリアライザ、デシリアライザを登録したObjectMapperを渡すことで使用可能です。</p>
+良いでしょう。</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="trustanchorsresolver"><a class="anchor" href="#trustanchorsresolver"></a>1.2.3. TrustAnchorsResolver</h4>
+<h4 id="trustanchorsresolver"><a class="anchor" href="#trustanchorsresolver"></a>1.4.3. TrustAnchorsResolver</h4>
 <div class="paragraph">
 <p><code>TrustAnchorsResolver</code> インタフェースは <code>TrustAnchorCertPathTrustworthinessValidator</code> で構成証明ステートメントの信頼性の
 検証を行う際に信頼するルート証明書のセットを探索するために使用されます。</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="trustanchorsprovider"><a class="anchor" href="#trustanchorsprovider"></a>1.2.4. TrustAnchorsProvider</h4>
+<h4 id="trustanchorsprovider"><a class="anchor" href="#trustanchorsprovider"></a>1.4.4. TrustAnchorsProvider</h4>
 <div class="paragraph">
 <p><code>TrustAnchorsProvider</code> インタフェースは前述の <code>TrustAnchorsResolver</code> インタフェースの実装である <code>TrustAnchorsResolverImpl</code>
 がTrustAnchorの読込処理を委譲する先のインタフェースです。実装としてJava Key StoreファイルからTrustAnchorを読み込む
@@ -518,14 +552,15 @@ TrustAnchorを読み込む <code>CertFileResourcesTrustAnchorProvider</code> が
 </div>
 </div>
 <div class="sect3">
-<h4 id="例外クラス"><a class="anchor" href="#例外クラス"></a>1.2.5. 例外クラス</h4>
+<h4 id="例外クラス"><a class="anchor" href="#例外クラス"></a>1.4.5. 例外クラス</h4>
 <div class="paragraph">
-<p>検証に失敗した場合、 <code>ValidationException</code> のサブクラスがスローされます。</p>
+<p>データの変換に失敗した場合、 <code>DataConversionException</code> のサブクラスがスローされます。
+データの検証に失敗した場合、 <code>ValidationException</code> のサブクラスがスローされます。</p>
 </div>
 </div>
 </div>
 <div class="sect2">
-<h3 id="ログ"><a class="anchor" href="#ログ"></a>1.3. ログ</h3>
+<h3 id="ログ"><a class="anchor" href="#ログ"></a>1.5. ログ</h3>
 <div class="paragraph">
 <p>WebAuthn4JはSLF4Jをログインタフェースライブラリとして使用します。
 Logbackなどログ実装ライブラリを構成し、ログをお好みのスタイルで出力してください。</p>
@@ -537,7 +572,7 @@ Logbackなどログ実装ライブラリを構成し、ログをお好みのス�
 <div id="footer">
 <div id="footer-text">
 Version 0.10.0-SNAPSHOT<br>
-Last updated 2019-12-27 16:08:33 UTC
+Last updated 2019-12-28 11:57:03 UTC
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">

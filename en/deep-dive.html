@@ -439,8 +439,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#deep-dive">1. Deep-Dive</a>
 <ul class="sectlevel2">
 <li><a href="#project-modules">1.1. Project Modules</a></li>
-<li><a href="#classes">1.2. Classes</a></li>
-<li><a href="#logging">1.3. Logging</a></li>
+<li><a href="#custom-converter-implementation">1.2. Custom converter implementation</a></li>
+<li><a href="#custom-validator-implementation">1.3. Custom validator implementation</a></li>
+<li><a href="#classes">1.4. Classes</a></li>
+<li><a href="#logging">1.5. Logging</a></li>
 </ul>
 </li>
 </ul>
@@ -464,7 +466,9 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sect3">
 <h4 id="metadata-webauthn4j-metadata-jar"><a class="anchor" href="#metadata-webauthn4j-metadata-jar"></a>1.1.2. Metadata webauthn4j-metadata.jar</h4>
 <div class="paragraph">
-<p>Provides additional features regarding FIDO Metadata Service.</p>
+<p>Provides additional features regarding FIDO Metadata Service.
+As FIDO Metadata Statement specification is still draft, it is in experimental status.
+The included classes don&#8217;t follow semantic versioning and the design may be changed even though it is public.</p>
 </div>
 </div>
 <div class="sect3">
@@ -482,15 +486,45 @@ may be changed even though it is public.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="classes"><a class="anchor" href="#classes"></a>1.2. Classes</h3>
+<h3 id="custom-converter-implementation"><a class="anchor" href="#custom-converter-implementation"></a>1.2. Custom converter implementation</h3>
+<div class="paragraph">
+<p>WebAuthn4J uses Jackson library for JSON and CBOR serialization and deserialization.
+If you would like to custom serialization or deserialization, register custom serializer or deserializer to the
+underlying Jackson <code>ObjectMapper</code>.</p>
+</div>
 <div class="sect3">
-<h4 id="data-transfer-objects"><a class="anchor" href="#data-transfer-objects"></a>1.2.1. Data Transfer Objects</h4>
+<h4 id="custom-converter-registration"><a class="anchor" href="#custom-converter-registration"></a>1.2.1. Custom converter registration</h4>
+<div class="paragraph">
+<p>Since WebAuthn4J wraps <code>ObjectMapper</code> with <code>ObjectConverter</code>, inject your customized <code>ObjectMapper</code> through <code>ObjectConverter</code>
+constructor and specify the <code>ObjectConverter</code> instance to the <code>WebAuthnManager</code> instance creation parameter.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="custom-validator-implementation"><a class="anchor" href="#custom-validator-implementation"></a>1.3. Custom validator implementation</h3>
+<div class="paragraph">
+<p>WebAuthn4J can add custom validator.
+For registration validation, implement <code>CustomRegistrationValidator</code>.
+For authentication validation, implement <code>CustomAuthenticationValidator</code>.</p>
+</div>
+<div class="sect3">
+<h4 id="custom-validator-registration"><a class="anchor" href="#custom-validator-registration"></a>1.3.1. Custom validator registration</h4>
+<div class="paragraph">
+<p><code>CustomRegistrationValidator</code> and <code>CustomAuthenticationValidator</code> implementation can be registered to <code>WebAuthnManager</code>
+via its constructor&#8217;s <code>customRegistrationValidators</code> and <code>customAuthenticationValidators</code> parameters.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="classes"><a class="anchor" href="#classes"></a>1.4. Classes</h3>
+<div class="sect3">
+<h4 id="data-transfer-objects"><a class="anchor" href="#data-transfer-objects"></a>1.4.1. Data Transfer Objects</h4>
 <div class="paragraph">
 <p>Classes under <code>com.webauthn4j.data</code> package are designed as immutable DTO.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="converter-jackson-modules-for-webauthn"><a class="anchor" href="#converter-jackson-modules-for-webauthn"></a>1.2.2. Converter, Jackson Modules for WebAuthn</h4>
+<h4 id="converter-jackson-modules-for-webauthn"><a class="anchor" href="#converter-jackson-modules-for-webauthn"></a>1.4.2. Converter, Jackson Modules for WebAuthn</h4>
 <div class="paragraph">
 <p>Classes under <code>com.webauthn4j.data</code> package are designed as being serializable and deserializable.</p>
 </div>
@@ -500,24 +534,19 @@ may be changed even though it is public.</p>
 WebAuthn4J’s validators register these modules onto Jackson&#8217;s <code>ObjectMapper</code> automatically.</p>
 </div>
 <div class="paragraph">
-<p>If you want to use WebAuthn4J’s serializer and deserializer outside these WebAuthn4J&#8217;s validators,
+<p>If you want to use WebAuthn4J’s serializer and deserializer outside of WebAuthnManager,
 you can register these modules onto Jackson&#8217;s <code>ObjectMapper</code>.</p>
-</div>
-<div class="paragraph">
-<p>If you want to use your custom serializer and deserializer for WebAuthn4J’s validators for parsing custom extensions,
-you can register your custom serializer and deserializer onto <code>ObjectMapper</code> and pass it onto WebAuthn4J' validators
-via those constructors.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="trustanchorsresolver"><a class="anchor" href="#trustanchorsresolver"></a>1.2.3. TrustAnchorsResolver</h4>
+<h4 id="trustanchorsresolver"><a class="anchor" href="#trustanchorsresolver"></a>1.4.3. TrustAnchorsResolver</h4>
 <div class="paragraph">
 <p><code>TrustAnchorsResolver</code> interface is used by <code>TrustAnchorCertPathTrustworthinessValidator</code> to explore root certificates
 in the verification of the authenticity of the attestation statements.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="trustanchorsprovider"><a class="anchor" href="#trustanchorsprovider"></a>1.2.4. TrustAnchorsProvider</h4>
+<h4 id="trustanchorsprovider"><a class="anchor" href="#trustanchorsprovider"></a>1.4.4. TrustAnchorsProvider</h4>
 <div class="paragraph">
 <p><code>TrustAnchorsProvider</code> is an interface that <code>TrustAnchorsResolverImpl</code> delegates TrustAnchor load operation to.
 KeyStoreFileTrustAnchorsProvider is provided as an implementation for loading TrustAnchor from Java Key Store file.
@@ -525,14 +554,14 @@ Spring Security WebAuthn also provides <code>CertFileResourcesTrustAnchorProvide
 </div>
 </div>
 <div class="sect3">
-<h4 id="exceptions"><a class="anchor" href="#exceptions"></a>1.2.5. Exceptions</h4>
+<h4 id="exceptions"><a class="anchor" href="#exceptions"></a>1.4.5. Exceptions</h4>
 <div class="paragraph">
 <p>If some verification fails, WebAuthn4J throws an exception class inheriting <code>ValidationException</code>.</p>
 </div>
 </div>
 </div>
 <div class="sect2">
-<h3 id="logging"><a class="anchor" href="#logging"></a>1.3. Logging</h3>
+<h3 id="logging"><a class="anchor" href="#logging"></a>1.5. Logging</h3>
 <div class="paragraph">
 <p>WebAuthn4J uses SLF4J as log interface library. You can use any kind of this implementation like Logback as you want.</p>
 </div>
@@ -543,7 +572,7 @@ Spring Security WebAuthn also provides <code>CertFileResourcesTrustAnchorProvide
 <div id="footer">
 <div id="footer-text">
 Version 0.10.0-SNAPSHOT<br>
-Last updated 2019-12-27 16:08:33 UTC
+Last updated 2019-12-28 11:57:03 UTC
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">

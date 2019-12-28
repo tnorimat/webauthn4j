@@ -457,13 +457,19 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sect2">
 <h3 id="構成証明の検証"><a class="anchor" href="#構成証明の検証"></a>1.1. 構成証明の検証</h3>
 <div class="paragraph">
-<p>認証デバイスの登録時に構成証明を検証する際は、 <code>WebAuthnManager#parseRegistrationRequest</code> メソッドを用いて登録リクエストをパースしたうえで、
-得られた <code>WebAuthnRegistrationData</code> クラスの <code>validate</code> メソッドを実行してください。
-<code>WebAuthnManager#parseRegistrationRequest</code> メソッドの引数である <code>WebAuthnRegistrationRequest</code> のコンストラクタの引数に指定する、
-<code>clientDataJSON</code> と <code>attestationObject</code> はフロントエンド側でWebAuthn JS APIを実行して取得した値となります。
-何らかの方法でフロントエンド側からサーバー側に伝送し、指定してください。
-<code>WebAuthnRegistrationData</code> クラスの <code>validate</code> メソッドの引数である <code>WebAuthnRegistrationParameters</code>  のコンストラクタの引数に指定する、
-<code>serverProperty</code> はサーバー側から取得する値をまとめたパラメータです。
+<p>認証デバイスの登録時に構成証明を検証する際は、<code>WebAuthnRegistrationRequest</code> を引数に
+<code>WebAuthnManager#validate</code> メソッドを用いて登録リクエストのパース、検証を行ってください。
+登録リクエストの検証でエラーが発生した場合に、元のパースされたデータにアクセスしたい場合は、
+<code>WebAuthnManager#parse</code> メソッドを用いて登録リクエストをパースしたうえで、
+得られた <code>WebAuthnRegistrationData</code> のインスタンスを <code>WebAuthnManager#validate</code> メソッドに渡して実行してください。</p>
+</div>
+<div class="paragraph">
+<p><code>WebAuthnRegistrationRequest</code> のメンバー はフロントエンド側でWebAuthn JS APIを実行して取得した値となります。
+何らかの方法でフロントエンド側からサーバー側に伝送し、指定してください。</p>
+</div>
+<div class="paragraph">
+<p><code>WebAuthnRegistrationParameters</code> は、<code>WebAuthnManager#validate</code> メソッドのもう一つの引数であり、
+サーバーの状態や検証条件をまとめたパラメータです。 サーバーの状態については、 <code>serverProperty</code> としてまとめています。
 <code>ServerProperty</code> のコンストラクタを呼び出す際のパラメータには以下の値を指定して下さい。</p>
 </div>
 <div class="ulist">
@@ -487,9 +493,6 @@ ClientDataに書き込んで署名を行います。WebAuthn4Jは書き込まれ
 <p><code>tokenBindingId</code> はToken bindingを利用する場合のパラメータです。利用しない場合は <code>null</code> を指定してください。</p>
 </li>
 </ul>
-</div>
-<div class="paragraph">
-<p><code>userVerificationRequired</code> は認証デバイスでのユーザーの本人性確認が必要かどうかを示すパラメータです。</p>
 </div>
 <div class="paragraph">
 <p>検証に失敗した場合は、 <code>ValidationException</code> のサブクラスの例外が発生します。
@@ -520,14 +523,14 @@ WebAuthnRegistrationRequest webAuthnRegistrationRequest = new WebAuthnRegistrati
 WebAuthnRegistrationParameters webAuthnRegistrationParameters = new WebAuthnRegistrationParameters(serverProperty, userVerificationRequired, userPresenceRequired, expectedExtensionIds);
 WebAuthnRegistrationData webAuthnRegistrationData;
 try{
-    webAuthnRegistrationData = webAuthnManager.parseRegistrationRequest(webAuthnRegistrationRequest);
+    webAuthnRegistrationData = webAuthnManager.parse(webAuthnRegistrationRequest);
 }
 catch (DataConversionException e){
     // If you would like to handle WebAuthn data structure parse error, please catch DataConversionException
     throw e;
 }
 try{
-    webAuthnRegistrationData.validate(webAuthnRegistrationParameters);
+    webAuthnManager.validate(webAuthnRegistrationData, webAuthnRegistrationParameters);
 }
 catch (ValidationException e){
     // If you would like to handle WebAuthn data validation error, please catch ValidationException
@@ -548,13 +551,12 @@ save(authenticator); // please persist authenticator in your manner</code></pre>
 <div class="sect2">
 <h3 id="アサーションの検証"><a class="anchor" href="#アサーションの検証"></a>1.2. アサーションの検証</h3>
 <div class="paragraph">
-<p>認証時にアサーションを検証する際は、  <code>WebAuthnManager#parseAuthenticationRequest</code> メソッドを用いて
-認証リクエストをパースしたうえで得られた <code>WebAuthnAuthenticationData</code> クラスの <code>validate</code> メソッドを実行してください。
-<code>WebAuthnManager#parseAuthenticationRequest</code> メソッドの引数である <code>WebAuthnAuthenticationRequest</code> の
+<p>認証時にアサーションを検証する際は、<code>WebAuthnAuthenticationRequest</code> を引数に  <code>WebAuthnManager#validate</code> メソッドを
+実行してください。<code>WebAuthnAuthenticationRequest</code> の
 コンストラクタの引数に指定する、 <code>credentialId</code> と <code>userHandle</code> 、 <code>authenticatorData</code>  、 <code>clientDataJSON</code> 、<code>signature</code> は
 フロントエンド側でWebAuthn JS APIを実行して取得した値となります。
 何らかの方法でフロントエンド側からサーバー側に伝送し、指定してください。
-<code>WebAuthnAuthenticationData</code> クラスの <code>validate</code> メソッドの引数である <code>WebAuthnAuthenticationParameters</code>  の
+<code>WebAuthnManager#validate</code> メソッドのもう一つの引数である <code>WebAuthnAuthenticationParameters</code>  の
 コンストラクタの引数に指定する、 <code>serverProperty</code> はサーバー側から取得する値をまとめたパラメータです。</p>
 </div>
 <div class="paragraph">
@@ -615,14 +617,14 @@ WebAuthnAuthenticationParameters webAuthnAuthenticationParameters =
 
 WebAuthnAuthenticationData webAuthnAuthenticationData;
 try{
-    webAuthnAuthenticationData = webAuthnManager.parseAuthenticationRequest(webAuthnAuthenticationRequest);
+    webAuthnAuthenticationData = webAuthnManager.parse(webAuthnAuthenticationRequest);
 }
 catch (DataConversionException e){
     // If you would like to handle WebAuthn data structure parse error, please catch DataConversionException
     throw e;
 }
 try{
-    webAuthnAuthenticationData.validate(webAuthnAuthenticationParameters);
+    webAuthnManager.validate(webAuthnAuthenticationData, webAuthnAuthenticationParameters);
 }
 catch (ValidationException e){
     // If you would like to handle WebAuthn data validation error, please catch ValidationException
@@ -642,7 +644,7 @@ updateCounter(
 <div id="footer">
 <div id="footer-text">
 Version 0.10.0-SNAPSHOT<br>
-Last updated 2019-12-27 16:08:33 UTC
+Last updated 2019-12-28 11:57:03 UTC
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">

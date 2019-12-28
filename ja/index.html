@@ -465,19 +465,25 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#構成証明ステートメントの検証">3.1. 構成証明ステートメントの検証</a></li>
 <li><a href="#認証デバイスの表現">3.2. 認証デバイスの表現</a></li>
 <li><a href="#webauthn4jが提供しない機能">3.3. WebAuthn4Jが提供しない機能</a></li>
-<li><a href="#project-modules">3.4. Project Modules</a></li>
-<li><a href="#クラス">3.5. クラス</a></li>
-<li><a href="#ログ">3.6. ログ</a></li>
 </ul>
 </li>
-<li><a href="#既知の問題">4. 既知の問題</a>
+<li><a href="#詳細">4. 詳細</a>
 <ul class="sectlevel2">
-<li><a href="#safariのサポート">4.1. Safariのサポート</a></li>
-<li><a href="#androidのresidentkey対応">4.2. AndroidのResidentKey対応</a></li>
-<li><a href="#firefox">4.3. Firefox</a></li>
-<li><a href="#ブラウザ間でのサポート状況の差異">4.4. ブラウザ間でのサポート状況の差異</a></li>
-<li><a href="#ecdaaのサポート">4.5. ECDAAのサポート</a></li>
-<li><a href="#ps256ps384ps512のサポート">4.6. PS256、PS384、PS512のサポート</a></li>
+<li><a href="#project-modules">4.1. Project Modules</a></li>
+<li><a href="#カスタムなデータ変換ロジックの実装">4.2. カスタムなデータ変換ロジックの実装</a></li>
+<li><a href="#カスタムな検証ロジックの実装">4.3. カスタムな検証ロジックの実装</a></li>
+<li><a href="#クラス">4.4. クラス</a></li>
+<li><a href="#ログ">4.5. ログ</a></li>
+</ul>
+</li>
+<li><a href="#既知の問題">5. 既知の問題</a>
+<ul class="sectlevel2">
+<li><a href="#safariのサポート">5.1. Safariのサポート</a></li>
+<li><a href="#androidのresidentkey対応">5.2. AndroidのResidentKey対応</a></li>
+<li><a href="#firefox">5.3. Firefox</a></li>
+<li><a href="#ブラウザ間でのサポート状況の差異">5.4. ブラウザ間でのサポート状況の差異</a></li>
+<li><a href="#ecdaaのサポート">5.5. ECDAAのサポート</a></li>
+<li><a href="#ps256ps384ps512のサポート">5.6. PS256、PS384、PS512のサポート</a></li>
 </ul>
 </li>
 </ul>
@@ -490,7 +496,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sect2">
 <h3 id="web-authenticationとは"><a class="anchor" href="#web-authenticationとは"></a>1.1. Web Authenticationとは</h3>
 <div class="paragraph">
-<p>Web Authenticationは、W3Cで2019年3月に勧告になったWebアプリケーションの新しいセキュアな認証方式仕様です。
+<p>Web Authenticationは、W3Cで2019年3月に勧告になった、Webアプリケーションの新しいセキュアな認証方式仕様です。
 ローカル認証や公開鍵認証、Origin別の鍵管理を組み合わせることで、フィッシングなど認証プロセスに対する攻撃に対して堅固な認証を実現しています。
 主要ブラウザでの実装が進みつつあり、セキュリティ、利便性を重視するユーザーに対して優れた選択肢を提供します。
 当初はFIDO AllianceでFIDO2.0の一部として仕様策定が進められていましたが、現在はW3Cに移管され、仕様策定が行われています。</p>
@@ -500,7 +506,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h3 id="webauthn4jとは"><a class="anchor" href="#webauthn4jとは"></a>1.2. WebAuthn4Jとは</h3>
 <div class="paragraph">
 <p>Web Authentication仕様に基づくサーバーサイド検証を行うためのJavaライブラリです。
-全ての構成証明ステートメント（Attestation）をサポートしつつ、外部ライブラリへの依存関係を最小限に抑えたポータブルなライブラリです。</p>
+全ての構成証明ステートメント（Attestation）をサポートしながら、外部ライブラリへの依存関係は最小限に抑えたポータブルなライブラリです。</p>
 </div>
 </div>
 <div class="sect2">
@@ -656,13 +662,19 @@ FIDO2 Test ToolsはFIDO2 Transport Binding ProfileのREST API経由でテスト�
 <div class="sect2">
 <h3 id="構成証明の検証"><a class="anchor" href="#構成証明の検証"></a>2.1. 構成証明の検証</h3>
 <div class="paragraph">
-<p>認証デバイスの登録時に構成証明を検証する際は、 <code>WebAuthnManager#parseRegistrationRequest</code> メソッドを用いて登録リクエストをパースしたうえで、
-得られた <code>WebAuthnRegistrationData</code> クラスの <code>validate</code> メソッドを実行してください。
-<code>WebAuthnManager#parseRegistrationRequest</code> メソッドの引数である <code>WebAuthnRegistrationRequest</code> のコンストラクタの引数に指定する、
-<code>clientDataJSON</code> と <code>attestationObject</code> はフロントエンド側でWebAuthn JS APIを実行して取得した値となります。
-何らかの方法でフロントエンド側からサーバー側に伝送し、指定してください。
-<code>WebAuthnRegistrationData</code> クラスの <code>validate</code> メソッドの引数である <code>WebAuthnRegistrationParameters</code>  のコンストラクタの引数に指定する、
-<code>serverProperty</code> はサーバー側から取得する値をまとめたパラメータです。
+<p>認証デバイスの登録時に構成証明を検証する際は、<code>WebAuthnRegistrationRequest</code> を引数に
+<code>WebAuthnManager#validate</code> メソッドを用いて登録リクエストのパース、検証を行ってください。
+登録リクエストの検証でエラーが発生した場合に、元のパースされたデータにアクセスしたい場合は、
+<code>WebAuthnManager#parse</code> メソッドを用いて登録リクエストをパースしたうえで、
+得られた <code>WebAuthnRegistrationData</code> のインスタンスを <code>WebAuthnManager#validate</code> メソッドに渡して実行してください。</p>
+</div>
+<div class="paragraph">
+<p><code>WebAuthnRegistrationRequest</code> のメンバー はフロントエンド側でWebAuthn JS APIを実行して取得した値となります。
+何らかの方法でフロントエンド側からサーバー側に伝送し、指定してください。</p>
+</div>
+<div class="paragraph">
+<p><code>WebAuthnRegistrationParameters</code> は、<code>WebAuthnManager#validate</code> メソッドのもう一つの引数であり、
+サーバーの状態や検証条件をまとめたパラメータです。 サーバーの状態については、 <code>serverProperty</code> としてまとめています。
 <code>ServerProperty</code> のコンストラクタを呼び出す際のパラメータには以下の値を指定して下さい。</p>
 </div>
 <div class="ulist">
@@ -686,9 +698,6 @@ ClientDataに書き込んで署名を行います。WebAuthn4Jは書き込まれ
 <p><code>tokenBindingId</code> はToken bindingを利用する場合のパラメータです。利用しない場合は <code>null</code> を指定してください。</p>
 </li>
 </ul>
-</div>
-<div class="paragraph">
-<p><code>userVerificationRequired</code> は認証デバイスでのユーザーの本人性確認が必要かどうかを示すパラメータです。</p>
 </div>
 <div class="paragraph">
 <p>検証に失敗した場合は、 <code>ValidationException</code> のサブクラスの例外が発生します。
@@ -719,14 +728,14 @@ WebAuthnRegistrationRequest webAuthnRegistrationRequest = new WebAuthnRegistrati
 WebAuthnRegistrationParameters webAuthnRegistrationParameters = new WebAuthnRegistrationParameters(serverProperty, userVerificationRequired, userPresenceRequired, expectedExtensionIds);
 WebAuthnRegistrationData webAuthnRegistrationData;
 try{
-    webAuthnRegistrationData = webAuthnManager.parseRegistrationRequest(webAuthnRegistrationRequest);
+    webAuthnRegistrationData = webAuthnManager.parse(webAuthnRegistrationRequest);
 }
 catch (DataConversionException e){
     // If you would like to handle WebAuthn data structure parse error, please catch DataConversionException
     throw e;
 }
 try{
-    webAuthnRegistrationData.validate(webAuthnRegistrationParameters);
+    webAuthnManager.validate(webAuthnRegistrationData, webAuthnRegistrationParameters);
 }
 catch (ValidationException e){
     // If you would like to handle WebAuthn data validation error, please catch ValidationException
@@ -747,13 +756,12 @@ save(authenticator); // please persist authenticator in your manner</code></pre>
 <div class="sect2">
 <h3 id="アサーションの検証"><a class="anchor" href="#アサーションの検証"></a>2.2. アサーションの検証</h3>
 <div class="paragraph">
-<p>認証時にアサーションを検証する際は、  <code>WebAuthnManager#parseAuthenticationRequest</code> メソッドを用いて
-認証リクエストをパースしたうえで得られた <code>WebAuthnAuthenticationData</code> クラスの <code>validate</code> メソッドを実行してください。
-<code>WebAuthnManager#parseAuthenticationRequest</code> メソッドの引数である <code>WebAuthnAuthenticationRequest</code> の
+<p>認証時にアサーションを検証する際は、<code>WebAuthnAuthenticationRequest</code> を引数に  <code>WebAuthnManager#validate</code> メソッドを
+実行してください。<code>WebAuthnAuthenticationRequest</code> の
 コンストラクタの引数に指定する、 <code>credentialId</code> と <code>userHandle</code> 、 <code>authenticatorData</code>  、 <code>clientDataJSON</code> 、<code>signature</code> は
 フロントエンド側でWebAuthn JS APIを実行して取得した値となります。
 何らかの方法でフロントエンド側からサーバー側に伝送し、指定してください。
-<code>WebAuthnAuthenticationData</code> クラスの <code>validate</code> メソッドの引数である <code>WebAuthnAuthenticationParameters</code>  の
+<code>WebAuthnManager#validate</code> メソッドのもう一つの引数である <code>WebAuthnAuthenticationParameters</code>  の
 コンストラクタの引数に指定する、 <code>serverProperty</code> はサーバー側から取得する値をまとめたパラメータです。</p>
 </div>
 <div class="paragraph">
@@ -814,14 +822,14 @@ WebAuthnAuthenticationParameters webAuthnAuthenticationParameters =
 
 WebAuthnAuthenticationData webAuthnAuthenticationData;
 try{
-    webAuthnAuthenticationData = webAuthnManager.parseAuthenticationRequest(webAuthnAuthenticationRequest);
+    webAuthnAuthenticationData = webAuthnManager.parse(webAuthnAuthenticationRequest);
 }
 catch (DataConversionException e){
     // If you would like to handle WebAuthn data structure parse error, please catch DataConversionException
     throw e;
 }
 try{
-    webAuthnAuthenticationData.validate(webAuthnAuthenticationParameters);
+    webAuthnManager.validate(webAuthnAuthenticationData, webAuthnAuthenticationParameters);
 }
 catch (ValidationException e){
     // If you would like to handle WebAuthn data validation error, please catch ValidationException
@@ -841,33 +849,28 @@ updateCounter(
 <h2 id="設定"><a class="anchor" href="#設定"></a>3. 設定</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>WebAuthn4Jを利用する上で中心となるクラスは2つ存在します。1つは登録時に資格情報を検証する
-<code>WebAuthnRegistrationContextValidator</code> クラスで、もう1つは認証時に資格情報を検証する
-<code>WebAuthnAuthenticationContextValidator</code> クラスです。</p>
-</div>
-<div class="paragraph">
-<p><code>WebAuthnRegistrationContextValidator</code> は構成証明ステートメントの署名と信頼性の検証は、
+<p>WebAuthn4Jを利用する上で中心となるクラスは <code>WebAuthnManager</code> クラスです。
+<code>WebAuthnManager</code> は登録リクエスト検証時の構成証明ステートメントの署名と信頼性の検証は、
 それぞれ <code>AttestationStatementValidator</code> と <code>CertPathTrustworthinessValidator</code> インタフェースの実装に委譲します。</p>
 </div>
 <div class="paragraph">
-<p>大多数のサイトは厳密な構成証明ステートメントの検証を必要としないでしょうから（
+<p>大多数のサイトは厳密な構成証明ステートメントの検証を必要としないことから（
 <a href="https://www.w3.org/TR/webauthn-1/#sctn-no-attestation-security-attestation">WebAuthn仕様書関連個所参照</a> ）、
 WebAuthn4Jでは構成証明ステートメントの検証をしないように <code>AttestationStatementValidator</code> と
-<code>CertPathTrustworthinessValidator</code> を構成した <code>WebAuthnRegistrationContextValidator</code> のインスタンスを返却する
-<code>WebAuthnRegistrationContextValidator.createNonStrictRegistrationContextValidator</code> ファクトリメソッドを用意しています。</p>
+<code>CertPathTrustworthinessValidator</code> を構成した <code>WebAuthnManager</code> のインスタンスを返却する
+<code>WebAuthnManager.createNonStrictWebAuthnManager</code> ファクトリメソッドを用意しています。</p>
 </div>
 <div class="paragraph">
 <p>もし、エンタープライズなユースケースで、認証デバイスの厳密な検証が要件である場合は、
-<code>WebAuthnRegistrationContextValidator</code> クラスのコンストラクタを用いて
-<code>AttestationStatementValidator</code> と <code>CertPathTrustworthinessValidator</code> の実装をコンストラクタインジェクションして
-構成して下さい。</p>
+<code>WebAuthnManager</code> クラスのコンストラクタを用いて <code>AttestationStatementValidator</code> と <code>CertPathTrustworthinessValidator</code>
+の実装をコンストラクタインジェクションして構成して下さい。</p>
 </div>
 <div class="sect2">
 <h3 id="構成証明ステートメントの検証"><a class="anchor" href="#構成証明ステートメントの検証"></a>3.1. 構成証明ステートメントの検証</h3>
 <div class="paragraph">
 <p>構成証明ステートメントの検証は、 <code>AttestationStatementValidator</code> インタフェースの実装クラスが提供します。
 構成照明ステートメント毎に、対応する実装クラスが提供されていますので、必要なValidatorからなるListを
-<code>WebAuthnRegistrationContextValidator</code> クラスのコンストラクタに指定して下さい。
+<code>WebAuthnManager</code> クラスのコンストラクタに指定して下さい。
 例えば、 <code>packed</code> のみをサポートする場合は、 <code>PackedAttestationStatementValidator</code> を唯一の要素とするListとし、
 例えば、 <code>packed</code>, <code>tpm</code> をサポートする場合は、 <code>PackedAttestationStatementValidator</code> と <code>TPMAttestationStatementValidator</code>
 からなるListを指定して下さい。</p>
@@ -880,20 +883,47 @@ WebAuthn4Jでは構成証明ステートメントの検証をしないように 
 ECDAAの場合は <code>ECDAATrustworthinessValidator</code> インタフェースの実装に検証が委譲されます。
 WebAuthn4Jはいくつか <code>CertPathTrustworthinessValidator</code> インタフェースの実装を提供しており、
 例えば <code>TrustAnchorCertPathTrustworthinessValidator</code> は <code>TrustAnchorResolver</code> インタフェースを通じて取得した
-<code>TrustAnchor</code> をルート証明書として証明書パスの検証を行うことで構成証明ステートメントの信頼性の検証を行います。</p>
+<code>TrustAnchor</code> をトラストアンカーの証明書として証明書パスの検証を行うことで構成証明ステートメントの信頼性の検証を行います。</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="トラストアンカーの取得"><a class="anchor" href="#トラストアンカーの取得"></a>3.1.2. トラストアンカーの取得</h4>
+<div class="paragraph">
+<p>前節で <code>TrustAnchorResolver</code> インタフェースがトラストアンカーの取得に使用されると述べましたが、
+WebAuthn4Jでは、 <code>TrustAnchorResolver</code> の実装として、<code>TrustAnchorResolverImpl</code> を提供しています。
+<code>TrustAnchorResolverImpl</code> は、トラストアンカーの取得を更に <code>TrustAnchorsProvider</code> に委譲しています。
+<code>TrustAnchorsProvider</code> の実装としては、Java Key Storeファイルからトラストアンカーを取得する <code>KeyStoreTrustAnchorsProvider</code> や、
+<a href="https://fidoalliance.org/specs/fido-v2.0-rd-20180702/fido-metadata-statement-v2.0-rd-20180702.html">FIDO メタデータステートメント</a>
+からトラストアンカーを取得する <code>MetadataStatementsTrustAnchorsProvider</code> が提供されています。</p>
 </div>
 <div class="sect4">
-<h5 id="fido-metadata-serviceを用いた構成証明ステートメントの信頼性の検証"><a class="anchor" href="#fido-metadata-serviceを用いた構成証明ステートメントの信頼性の検証"></a>FIDO Metadata Serviceを用いた構成証明ステートメントの信頼性の検証</h5>
+<h5 id="fido-metadata-serviceを用いたトラストアンカーの取得"><a class="anchor" href="#fido-metadata-serviceを用いたトラストアンカーの取得"></a>FIDO Metadata Serviceを用いたトラストアンカーの取得</h5>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+FIDO Metadata Statement関連の機能を提供する <code>webauthn4j-meta</code> モジュールは実験的な提供段階です。
+</td>
+</tr>
+</table>
+</div>
 <div class="paragraph">
 <p>FIDO Allianceでは、FIDO Metadata Serviceという、認証デバイスのメタデータを配信するサービスを提供しています。
-このサービスを利用することにより、登録しようとしている認証デバイスで、セキュリティ上の問題が報告されていないか
-チェックすることが可能です。FIDO Metadata Serviceを用いて構成証明ステートメントの信頼性の検証を行う場合、
-<code>CertPathTrustworthinessValidator</code> の実装として <code>webauthn4j-metadata</code> モジュールの
-<code>MetadataItemsCertPathTrustworthinessValidator</code> を使用して下さい。<code>MetadataItemsCertPathTrustworthinessValidator</code> は
-<code>MetadataItemsResolver</code> インタフェースを通じて認証デバイスのAAGUIDに対応する <code>MetadataItem</code> リストを解決しますので、
-<code>MetadataItemsResolverImpl</code> と <code>FidoMdsMetadataItemsProvider</code> を組み合わせて使うことで、FIDO Metadata Serviceによる
-信頼性の検証を行うことが可能です。</p>
+このサービスに登録された認証デバイスの情報を活用するために、<code>FidoMdsMetadataItemsProvider</code> というクラスが提供されています。
+これは、<code>MetadataItemsMetadataStatementsProvider</code> などと組み合わせることでトラストアンカーの取得に使用できます。</p>
 </div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="fido-metadata-serviceを用いた認証デバイスの脆弱性情報のチェック"><a class="anchor" href="#fido-metadata-serviceを用いた認証デバイスの脆弱性情報のチェック"></a>3.1.3. FIDO Metadata Serviceを用いた認証デバイスの脆弱性情報のチェック</h4>
+<div class="paragraph">
+<p><code>FidoMdsMetadataValidator</code> を用いてメタデータのステータスから、登録しようとしている認証デバイスで、
+セキュリティ上の問題が報告されていないかチェックすることも可能です。
+<code>FidoMdsMetadataValidator</code> は、 <code>CustomRegistrationValidator</code> の実装ですので、
+<a href="_./deep-dive.html#カスタム検証ロジックの登録">カスタム検証ロジックの登録</a> を参考に使用して下さい。</p>
 </div>
 </div>
 </div>
@@ -901,7 +931,7 @@ WebAuthn4Jはいくつか <code>CertPathTrustworthinessValidator</code> イン�
 <h3 id="認証デバイスの表現"><a class="anchor" href="#認証デバイスの表現"></a>3.2. 認証デバイスの表現</h3>
 <div class="paragraph">
 <p>認証デバイスを表現するインタフェースとして、 <code>Authenticator</code> インタフェースが存在します。
-登録時に、 <code>WebAuthnRegistrationContextValidationResponse</code> クラスが含む値を用いて <code>Authenticator</code> インタフェースの
+登録時に、 <code>WebAuthnRegistrationData</code> クラスが含む値を用いて <code>Authenticator</code> インタフェースの
 インスタンスを作成し、アプリケーションの作法に則り永続化してください。認証時の検証に必要となります。
 なお、永続化する際は、検索する際の利便性を考え、credentialIdをキーに永続化すると良いでしょう。
 <code>Authenticator</code> インタフェースの実装クラスを設計する際は、アプリケーションの要件に合わせて拡張すると良いでしょう。
@@ -915,70 +945,106 @@ WebAuthn4Jはいくつか <code>CertPathTrustworthinessValidator</code> イン�
 WebAuthnのAssertion/Attestationの検証に意図的に機能を絞り込んでおり、HTTPリクエストからのパラメータの取出、
 Challengeの発行・セッションへの保存、カウンタ値の検証は具備していません。
 使用する認証フレームワークに合わせて独自に実装して下さい。Spring Securityをご利用の場合は、
-Spring Security WebAuthnがそれらの認証フレームワーク特化の部分の実装を提供しますので活用をご検討下さい。
-== 詳細</p>
+Spring Security WebAuthnがそれらの認証フレームワーク特化の部分の実装を提供しますので活用をご検討下さい。</p>
 </div>
 </div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="詳細"><a class="anchor" href="#詳細"></a>4. 詳細</h2>
+<div class="sectionbody">
 <div class="sect2">
-<h3 id="project-modules"><a class="anchor" href="#project-modules"></a>3.4. Project Modules</h3>
+<h3 id="project-modules"><a class="anchor" href="#project-modules"></a>4.1. Project Modules</h3>
 <div class="paragraph">
 <p>WebAuthn4Jは、以下の4つのModuleから構成されます。</p>
 </div>
 <div class="sect3">
-<h4 id="core-webauthn4j-core-jar"><a class="anchor" href="#core-webauthn4j-core-jar"></a>3.4.1. Core webauthn4j-core.jar</h4>
+<h4 id="core-webauthn4j-core-jar"><a class="anchor" href="#core-webauthn4j-core-jar"></a>4.1.1. Core webauthn4j-core.jar</h4>
 <div class="paragraph">
 <p>Attestation/Assertionの検証に関わるコア機能を提供します。</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="metadata-webauthn4j-metadata-jar"><a class="anchor" href="#metadata-webauthn4j-metadata-jar"></a>3.4.2. Metadata webauthn4j-metadata.jar</h4>
+<h4 id="metadata-webauthn4j-metadata-jar"><a class="anchor" href="#metadata-webauthn4j-metadata-jar"></a>4.1.2. Metadata webauthn4j-metadata.jar</h4>
 <div class="paragraph">
-<p>FIDO Metadata Serviceを用いたTrustAnchorの解決など、追加的な機能を提供します。</p>
+<p>FIDO Metadata Serviceを用いたTrustAnchorの解決など、追加的な機能を提供します。
+依拠しているFIDO Metadata Statements仕様がドラフトの為、実験的な提供です。
+含まれているクラスは、Publicであっても、セマンティックバージョニングに従わずに破壊的変更が入る場合があります。</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="test-webauthn4j-test-jar"><a class="anchor" href="#test-webauthn4j-test-jar"></a>3.4.3. Test webauthn4j-test.jar</h4>
+<h4 id="test-webauthn4j-test-jar"><a class="anchor" href="#test-webauthn4j-test-jar"></a>4.1.3. Test webauthn4j-test.jar</h4>
 <div class="paragraph">
 <p>WebAuthn4Jのテストを行うための内部ライブラリです。含まれているクラスは、Publicであっても、セマンティックバージョニングに従わずに
-設計変更されることがあります。</p>
+破壊的変更が入る場合があります。</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="util-webauthn4j-util-jar"><a class="anchor" href="#util-webauthn4j-util-jar"></a>3.4.4. Util webauthn4j-util.jar</h4>
+<h4 id="util-webauthn4j-util-jar"><a class="anchor" href="#util-webauthn4j-util-jar"></a>4.1.4. Util webauthn4j-util.jar</h4>
 <div class="paragraph">
 <p>WebAuthn4Jライブラリで使用されるユーティリティクラスをまとめたライブラリです。</p>
 </div>
 </div>
 </div>
 <div class="sect2">
-<h3 id="クラス"><a class="anchor" href="#クラス"></a>3.5. クラス</h3>
+<h3 id="カスタムなデータ変換ロジックの実装"><a class="anchor" href="#カスタムなデータ変換ロジックの実装"></a>4.2. カスタムなデータ変換ロジックの実装</h3>
+<div class="paragraph">
+<p>WebAuthn4Jでは、JSONやCBORのシリアライズ、デシリアライズ処理にJacksonライブラリを使用しています。
+Client ExtensionやAuthenticator Extensionのデータ変換でカスタムな変換を行いたい場合、WebAuthn4Jが内部で使用している
+Jacksonの <code>ObjectMapper</code> にカスタムなシリアライザ、デシリアライザを登録することで実現できます。</p>
+</div>
 <div class="sect3">
-<h4 id="data-transfer-objects"><a class="anchor" href="#data-transfer-objects"></a>3.5.1. Data transfer Objects</h4>
+<h4 id="カスタムなデータ変換ロジックの登録"><a class="anchor" href="#カスタムなデータ変換ロジックの登録"></a>4.2.1. カスタムなデータ変換ロジックの登録</h4>
+<div class="paragraph">
+<p>WebAuthn4Jは、Jacksonの <code>ObjectMapper</code> を <code>ObjectConverter</code> というクラスでラップして使用しており、
+カスタムなシリアライザ、デシリアライザを登録した <code>ObjectMapper</code> を <code>ObjectConverter</code> インスタンス作成時にコンストラクタから
+インジェクトし、その <code>ObjectConverter</code> を <code>WebAuthnManager</code> のインスタンス作成時にパラメータとして指定してください。</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="カスタムな検証ロジックの実装"><a class="anchor" href="#カスタムな検証ロジックの実装"></a>4.3. カスタムな検証ロジックの実装</h3>
+<div class="paragraph">
+<p>WebAuthn4Jでは、カスタムな検証ロジックを実装し、追加することが可能です。
+登録時の検証にカスタムロジックを追加する場合は、 <code>CustomRegistrationValidator</code> を実装してください。
+認証時の検証にカスタムロジックを追加する場合は、 <code>CustomAuthenticationValidator</code> を実装してください。</p>
+</div>
+<div class="sect3">
+<h4 id="カスタム検証ロジックの登録"><a class="anchor" href="#カスタム検証ロジックの登録"></a>4.3.1. カスタム検証ロジックの登録</h4>
+<div class="paragraph">
+<p><code>CustomRegistrationValidator</code> と <code>CustomAuthenticationValidator</code> の実装は <code>WebAuthnManager</code> のコンストラクタの
+<code>customRegistrationValidators</code> パラメータおよび <code>customAuthenticationValidators</code> パラメータを通じて登録することが出来ます。</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="クラス"><a class="anchor" href="#クラス"></a>4.4. クラス</h3>
+<div class="sect3">
+<h4 id="data-transfer-objects"><a class="anchor" href="#data-transfer-objects"></a>4.4.1. Data transfer Objects</h4>
 <div class="paragraph">
 <p><code>com.webauthn4j.data</code> パッケージ配下のクラスはイミュータブルなDTOとして設計されています。</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="converter-webauthnmodule"><a class="anchor" href="#converter-webauthnmodule"></a>3.5.2. Converter, WebAuthnModule</h4>
+<h4 id="converter-webauthnmodule"><a class="anchor" href="#converter-webauthnmodule"></a>4.4.2. Converter, WebAuthnModule</h4>
 <div class="paragraph">
 <p>データパッケージ配下のクラスはJacksonによってシリアライズ、デシリアライズ可能なように設計されています。
 一部のクラスはカスタムなシリアライザ、デシリアライザが必要であり、 <code>converter</code> パッケージ配下に集約されています。
 カスタムシリアライザ、デシリアライザは <code>WebAuthnJSONModule</code> と <code>WebAuthnCBORModule</code> というJacksonのModuleにまとめられています。
-WebAuthn4JのValidatorは内部で使用するJacksonの <code>ObjectMapper</code> に自動で <code>WebAuthnModule</code> を適用しますが、Validatorの外部で
+WebAuthn4Jは内部で使用するJacksonの <code>ObjectMapper</code> に自動で <code>WebAuthnModule</code> を適用しますが、<code>WebAuthnManager</code> の外部で
 WebAuthn4Jのシリアライザ、デシリアライザを使用したい場合は、Jacksonの <code>ObjectMapper</code> に <code>WebAuthnModule</code> を登録すると
-良いでしょう。もしWebAuthn4JのValidatorでカスタムなシリアライザ、デシリアライザを使用したい場合は、WebAuthn4JのValidator
-のコンストラクタに、カスタムなシリアライザ、デシリアライザを登録したObjectMapperを渡すことで使用可能です。</p>
+良いでしょう。</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="trustanchorsresolver"><a class="anchor" href="#trustanchorsresolver"></a>3.5.3. TrustAnchorsResolver</h4>
+<h4 id="trustanchorsresolver"><a class="anchor" href="#trustanchorsresolver"></a>4.4.3. TrustAnchorsResolver</h4>
 <div class="paragraph">
 <p><code>TrustAnchorsResolver</code> インタフェースは <code>TrustAnchorCertPathTrustworthinessValidator</code> で構成証明ステートメントの信頼性の
 検証を行う際に信頼するルート証明書のセットを探索するために使用されます。</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="trustanchorsprovider"><a class="anchor" href="#trustanchorsprovider"></a>3.5.4. TrustAnchorsProvider</h4>
+<h4 id="trustanchorsprovider"><a class="anchor" href="#trustanchorsprovider"></a>4.4.4. TrustAnchorsProvider</h4>
 <div class="paragraph">
 <p><code>TrustAnchorsProvider</code> インタフェースは前述の <code>TrustAnchorsResolver</code> インタフェースの実装である <code>TrustAnchorsResolverImpl</code>
 がTrustAnchorの読込処理を委譲する先のインタフェースです。実装としてJava Key StoreファイルからTrustAnchorを読み込む
@@ -987,14 +1053,15 @@ TrustAnchorを読み込む <code>CertFileResourcesTrustAnchorProvider</code> が
 </div>
 </div>
 <div class="sect3">
-<h4 id="例外クラス"><a class="anchor" href="#例外クラス"></a>3.5.5. 例外クラス</h4>
+<h4 id="例外クラス"><a class="anchor" href="#例外クラス"></a>4.4.5. 例外クラス</h4>
 <div class="paragraph">
-<p>検証に失敗した場合、 <code>ValidationException</code> のサブクラスがスローされます。</p>
+<p>データの変換に失敗した場合、 <code>DataConversionException</code> のサブクラスがスローされます。
+データの検証に失敗した場合、 <code>ValidationException</code> のサブクラスがスローされます。</p>
 </div>
 </div>
 </div>
 <div class="sect2">
-<h3 id="ログ"><a class="anchor" href="#ログ"></a>3.6. ログ</h3>
+<h3 id="ログ"><a class="anchor" href="#ログ"></a>4.5. ログ</h3>
 <div class="paragraph">
 <p>WebAuthn4JはSLF4Jをログインタフェースライブラリとして使用します。
 Logbackなどログ実装ライブラリを構成し、ログをお好みのスタイルで出力してください。</p>
@@ -1003,20 +1070,22 @@ Logbackなどログ実装ライブラリを構成し、ログをお好みのス�
 </div>
 </div>
 <div class="sect1">
-<h2 id="既知の問題"><a class="anchor" href="#既知の問題"></a>4. 既知の問題</h2>
+<h2 id="既知の問題"><a class="anchor" href="#既知の問題"></a>5. 既知の問題</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>WebAuthnは各ブラウザベンダが実装を進めている最中の新技術であり、仕様で定められていても、残念ながら実際の活用には制約がかかる場面もあります。
-本節では、2019/10 現在のWebAuthnを活用する上での既知の問題を整理します。</p>
+本節では、2019/12 現在のWebAuthnを活用する上での既知の問題を整理します。</p>
 </div>
 <div class="sect2">
-<h3 id="safariのサポート"><a class="anchor" href="#safariのサポート"></a>4.1. Safariのサポート</h3>
+<h3 id="safariのサポート"><a class="anchor" href="#safariのサポート"></a>5.1. Safariのサポート</h3>
 <div class="paragraph">
-<p>Safari 13からmacOSではWebAuthnのサポートが開始されましたが、iPhone/iPadでは現在、WebAuthnは利用できません。</p>
+<p>macOSではSafari 13からWebAuthnのサポートが開始されました。
+iPhone/iPadではiOS 13.3のSafariから、WebAuthnのサポートが開始されました。どちらも外部セキュリティキーのサポートのみであり、
+Touch ID/Face ID のサポートは始まっていません。</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="androidのresidentkey対応"><a class="anchor" href="#androidのresidentkey対応"></a>4.2. AndroidのResidentKey対応</h3>
+<h3 id="androidのresidentkey対応"><a class="anchor" href="#androidのresidentkey対応"></a>5.2. AndroidのResidentKey対応</h3>
 <div class="paragraph">
 <p>AndroidのFIDO APIはResidentKey対応が完了していません。即ち、Chrome for AndroidとFirefox for Androidでは
 ユーザーに対して認証時のID入力を省いた認証体験を提供することは出来ません。</p>
@@ -1036,30 +1105,30 @@ Roaming Authenticatorを利用して別デバイスで認証を行う場合に�
 </div>
 </div>
 <div class="sect2">
-<h3 id="firefox"><a class="anchor" href="#firefox"></a>4.3. Firefox</h3>
+<h3 id="firefox"><a class="anchor" href="#firefox"></a>5.3. Firefox</h3>
 <div class="paragraph">
 <p>FirefoxはWindows 10 1903からOS標準のWebAuthn APIを利用することでCTAP2のAuthenticatorに対応しています。
-但し、macOSや、Linuxでは、FIDO U2FのAuthenticatorのみに対応しています。</p>
+macOSや、Linuxでは、FIDO U2FのAuthenticatorのみに対応しています。</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="ブラウザ間でのサポート状況の差異"><a class="anchor" href="#ブラウザ間でのサポート状況の差異"></a>4.4. ブラウザ間でのサポート状況の差異</h3>
+<h3 id="ブラウザ間でのサポート状況の差異"><a class="anchor" href="#ブラウザ間でのサポート状況の差異"></a>5.4. ブラウザ間でのサポート状況の差異</h3>
 <div class="paragraph">
 <p>各ブラウザ、WebAuthnへの対応が進みつつありますが、上記の通りサポート状況には差異があり、あるプラットフォームで
 サポートされている機能が別のプラットフォームでは利用できないことは珍しくなりません。
 ResidentKeyを活用してID入力の省略を実現する場合でも、Chrome、Firefoxユーザーを考慮してパスワードとの二要素認証のサポートを行う、
-Safariユーザーを考慮してWebAuthn以外での二要素認証のサポートを行う、などフォールバック手段の確保に努めましょう。</p>
+WebAuthnが利用できないユーザーを考慮してWebAuthn以外での二要素認証のサポートを行う、などフォールバック手段の確保に努めましょう。</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="ecdaaのサポート"><a class="anchor" href="#ecdaaのサポート"></a>4.5. ECDAAのサポート</h3>
+<h3 id="ecdaaのサポート"><a class="anchor" href="#ecdaaのサポート"></a>5.5. ECDAAのサポート</h3>
 <div class="paragraph">
 <p>WebAuthn4JはECDAA(Elliptic Curve based Direct Anonymous Attestation)アルゴリズムをサポートしていません。
 ECDAAアルゴリズムはWebAuthn仕様でオプションとされており、主要ブラウザでもサポートされていない為、当面サポートする予定はありません。</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="ps256ps384ps512のサポート"><a class="anchor" href="#ps256ps384ps512のサポート"></a>4.6. PS256、PS384、PS512のサポート</h3>
+<h3 id="ps256ps384ps512のサポート"><a class="anchor" href="#ps256ps384ps512のサポート"></a>5.6. PS256、PS384、PS512のサポート</h3>
 <div class="paragraph">
 <p>WebAuthn4JはPS256、PS384、PS512アルゴリズムをサポートしていません。
 PS256、PS384、PS512アルゴリズムはWebAuthn仕様でオプションとされており、Java Crypto APIでも標準のProviderではサポートされていない為、
@@ -1072,7 +1141,7 @@ PS256、PS384、PS512アルゴリズムはWebAuthn仕様でオプションとさ
 <div id="footer">
 <div id="footer-text">
 Version 0.10.0-SNAPSHOT<br>
-Last updated 2019-12-27 16:08:33 UTC
+Last updated 2019-12-28 11:57:03 UTC
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">

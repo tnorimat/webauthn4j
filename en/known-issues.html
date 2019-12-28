@@ -455,18 +455,15 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sectionbody">
 <div class="paragraph">
 <p>WebAuthn is state of the art technology. Therefore, there are still some limitations products utilizing it have.
-This section tells you issues known at the time of Feb 2019 that might be encountered if you try to use products
+This section tells you issues known at the time of Dec 2019 that might be encountered if you try to use products
 utilizing WebAuthn technology.</p>
 </div>
 <div class="sect2">
 <h3 id="safaris-webauthn-support"><a class="anchor" href="#safaris-webauthn-support"></a>1.1. Safari&#8217;s WebAuthn support</h3>
 <div class="paragraph">
-<p>Safari has not yet supported WebAuthn, which means that you cannot use iPhone/iPad to experience authentication
-utilizing WebAuthn technology.</p>
-</div>
-<div class="paragraph">
-<p>Safari&#8217;s Technology Preview version has supported WebAuthn using CTAP2 Authenticator, but it has not yet integrated
-Face ID and Touch ID. However, it seems to be expected to integrate them sooner or later.</p>
+<p>On macOS, WebAuthn is supported from Safari 13.
+on iPhone/iPad, WebAuthn is supported from Safari on iOS13.3.
+Both implementation only support external authenticators. TouchID and FaceID is not yet supported at this moment.</p>
 </div>
 </div>
 <div class="sect2">
@@ -506,7 +503,7 @@ mechanism for your users using platforms not supporting the feature you expected
 <div class="paragraph">
 <p>For example, if you utilize ResidentKey to omit entering user account&#8217;s ID, it might be better to support two-factor
 authentication requiring password authentication for users using Chrome and Firefox, and two-factor authentication
-without WebAuthn for users using Safari.</p>
+without WebAuthn for users using browsers without WebAuthn support.</p>
 </div>
 </div>
 <div class="sect2">
@@ -531,7 +528,7 @@ have not yet supported it.</p>
 <div id="footer">
 <div id="footer-text">
 Version 0.10.0-SNAPSHOT<br>
-Last updated 2019-12-27 16:08:33 UTC
+Last updated 2019-12-28 11:57:03 UTC
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">

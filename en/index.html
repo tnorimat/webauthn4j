@@ -469,8 +469,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#deep-dive">4. Deep-Dive</a>
 <ul class="sectlevel2">
 <li><a href="#project-modules">4.1. Project Modules</a></li>
-<li><a href="#classes">4.2. Classes</a></li>
-<li><a href="#logging">4.3. Logging</a></li>
+<li><a href="#custom-converter-implementation">4.2. Custom converter implementation</a></li>
+<li><a href="#custom-validator-implementation">4.3. Custom validator implementation</a></li>
+<li><a href="#classes">4.4. Classes</a></li>
+<li><a href="#logging">4.5. Logging</a></li>
 </ul>
 </li>
 <li><a href="#known-issues">5. Known Issues</a>
@@ -550,7 +552,7 @@ Spring Security WebAuthn also provides an implementation of the REST API of FIDO
 <h4 id="conformance"><a class="anchor" href="#conformance"></a>1.4.2. Conformance</h4>
 <div class="paragraph">
 <p>All mandatory test cases and optional Android Key attestation test cases of <a href="https://fidoalliance.org/certification/functional-certification/conformance/">FIDO2 Test Tools provided by FIDO Alliance</a>
-are all passed.</p>
+are passed.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -654,14 +656,22 @@ the data which contains signature and is sent at authentication is called "asser
 <div class="sect2">
 <h3 id="attestation-verification"><a class="anchor" href="#attestation-verification"></a>2.1. Attestation verification</h3>
 <div class="paragraph">
-<p>To validate an attestation on authenticator registration, call <code>WebAuthnManager#parseRegistrationRequest</code> to parse a registration request,
-and invoke <code>validate</code> method of the returned <code>WebAuthnRegistrationData</code> instance.</p>
+<p>To validate an attestation on authenticator registration, call <code>WebAuthnManager#validate</code> with a
+<code>WebAuthnRegistrationRequest</code> instance as an argument.
+If you would like to access the parsed data when an validation error occurred, please use <code>WebAuthnManager#parse</code> to
+parse the registration request and pass the returned <code>WebAuthnRegistrationData</code> instance to <code>WebAuthnManager#validate</code>
+method.</p>
 </div>
 <div class="paragraph">
-<p><code>ClientDataJSON</code> and <code>attestationObject</code>, specified as the argument of the constructor of <code>WebAuthnRegistrationRequest</code>
-are the value obtained by the WebAuthn JS API in the front end side.
-<code>serverProperty</code> is a parameter that houses values obtained from the server side. Please specify the following values​
-when calling the constructor.</p>
+<p>The members of <code>WebAuthnRegistrationRequest</code> are the values obtained by the WebAuthn JS API in the front end side.
+Transmit from the front end side to the server side in some way.</p>
+</div>
+<div class="paragraph">
+<p><code>WebAuthnRegistrationParameters</code> is an another argument for <code>WebAuthnManager#parse</code> method, and contains
+server property and validation conditions.</p>
+</div>
+<div class="paragraph">
+<p><code>serverProperty</code> has following members.</p>
 </div>
 <div class="ulist">
 <ul>
@@ -686,9 +696,6 @@ It is the application&#8217;s responsibility for retaining the issued Challenge.
 <p><code>tokenBindingId</code> is a parameter for Token binding. If you do not want to use it please specify <code>null</code>.</p>
 </li>
 </ul>
-</div>
-<div class="paragraph">
-<p><code>userVerificationRequired</code> is a parameter that indicates whether the user verification on the authenticator is required.</p>
 </div>
 <div class="paragraph">
 <p>If validation fails, an exception inheriting <code>ValidationException</code> is thrown.
@@ -719,14 +726,14 @@ WebAuthnRegistrationRequest webAuthnRegistrationRequest = new WebAuthnRegistrati
 WebAuthnRegistrationParameters webAuthnRegistrationParameters = new WebAuthnRegistrationParameters(serverProperty, userVerificationRequired, userPresenceRequired, expectedExtensionIds);
 WebAuthnRegistrationData webAuthnRegistrationData;
 try{
-    webAuthnRegistrationData = webAuthnManager.parseRegistrationRequest(webAuthnRegistrationRequest);
+    webAuthnRegistrationData = webAuthnManager.parse(webAuthnRegistrationRequest);
 }
 catch (DataConversionException e){
     // If you would like to handle WebAuthn data structure parse error, please catch DataConversionException
     throw e;
 }
 try{
-    webAuthnRegistrationData.validate(webAuthnRegistrationParameters);
+    webAuthnManager.validate(webAuthnRegistrationData, webAuthnRegistrationParameters);
 }
 catch (ValidationException e){
     // If you would like to handle WebAuthn data validation error, please catch ValidationException
@@ -747,14 +754,18 @@ save(authenticator); // please persist authenticator in your manner</code></pre>
 <div class="sect2">
 <h3 id="assertion-verification"><a class="anchor" href="#assertion-verification"></a>2.2. Assertion verification</h3>
 <div class="paragraph">
-<p>To validate an assertion on authentication, call <code>WebAuthnManager#parseAuthenticationRequest</code> to parse a authentication request,
-and invoke <code>validate</code> method of the returned <code>WebAuthnAuthenticationData</code> instance.</p>
+<p>To parse and validate an assertion on authentication, call <code>WebAuthnManager#parse</code> with a <code>WebAuthnRegistrationRequest</code>
+instance as an argument. If you would like to access the parsed data when an validation error occurred, please use
+<code>WebAuthnManager#parse</code> to parse the authentication request and pass the returned <code>WebAuthnAuthenticationData</code> instance
+to <code>WebAuthnManager#validate</code> method.</p>
 </div>
 <div class="paragraph">
-<p><code>credentialId</code>, <code>userHandle</code>, <code>authenticatorData</code>, <code>clientDataJSON</code>, and <code>clientExtensionJSON</code>, specified as the argument of
-the constructor of <code>WebAuthnAuthenticationRequest</code> are the value obtained by the WebAuthn JS API in the front end side.
-<code>serverProperty</code> is a parameter that houses values obtained from the server side. Please specify the following values​
-when calling the constructor.</p>
+<p>The members of <code>WebAuthnAuthenticationRequest</code> are the values obtained by the WebAuthn JS API in the front end side.
+Transmit from the front end side to the server side in some way.</p>
+</div>
+<div class="paragraph">
+<p>WebAuthnAuthenticationParameters is an another argument for WebAuthnManager#parse method,
+and contains server property, persisted authenticator and validation conditions.</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -800,14 +811,14 @@ WebAuthnAuthenticationParameters webAuthnAuthenticationParameters =
 
 WebAuthnAuthenticationData webAuthnAuthenticationData;
 try{
-    webAuthnAuthenticationData = webAuthnManager.parseAuthenticationRequest(webAuthnAuthenticationRequest);
+    webAuthnAuthenticationData = webAuthnManager.parse(webAuthnAuthenticationRequest);
 }
 catch (DataConversionException e){
     // If you would like to handle WebAuthn data structure parse error, please catch DataConversionException
     throw e;
 }
 try{
-    webAuthnAuthenticationData.validate(webAuthnAuthenticationParameters);
+    webAuthnManager.validate(webAuthnAuthenticationData, webAuthnAuthenticationParameters);
 }
 catch (ValidationException e){
     // If you would like to handle WebAuthn data validation error, please catch ValidationException
@@ -827,35 +838,31 @@ updateCounter(
 <h2 id="configuration"><a class="anchor" href="#configuration"></a>3. Configuration</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>There are two main classes when using WebAuthn4J. One is <code>WebAuthnRegistrationContextValidator</code> class, which is
-used to verify the credentials at the time of registration, and the other is <code>WebAuthnAuthenticationContextValidator</code> class,
-which is used to verify the credentials during authentication.</p>
-</div>
-<div class="paragraph">
-<p><code>WebAuthnRegistrationContextValidator</code> delegates attestation statements validation to an implementation of
+<p>WebAuthn4J has a one main entry point class, <code>WebAuthnManager</code>.
+It delegates attestation statements validation to an implementation of
 <code>AttestationStatementValidator</code> and attestation statements trustworthiness validation to an implementation of
 <code>CertPathTrustworthinessValidator</code>.</p>
 </div>
 <div class="paragraph">
 <p>Since most sites don&#8217;t require strict attestation statement validation
 (<a href="https://www.w3.org/TR/webauthn-1/#sctn-no-attestation-security-attestation">WebAuthn Spec related topic</a> ),
-WebAuthn4J provides <code>WebAuthnRegistrationContextValidator.createNonStrictRegistrationContextValidator</code> factory method
-that returns an instance configured <code>CertPathTrustworthinessValidator</code> and  <code>WebAuthnRegistrationContextValidator</code>
-not to validate attestation statements.</p>
+WebAuthn4J provides <code>WebAuthnManager.createNonStrictWebAuthnManager</code> factory method
+that returns an <code>WebAuthnManager</code> instance configured <code>AttestationStatementValidator</code> and
+<code>CertPathTrustworthinessValidator</code> not to validate attestation statements.</p>
 </div>
 <div class="paragraph">
-<p>If you are engaging an enterprise use case and strict verification of an authenticator is a requirement,
-Use the constructor of the <code>WebAuthnRegistrationContextValidator</code> class and inject validators.</p>
+<p>If you are engaging an enterprise use case and strict authenticator verification is a requirement,
+Use the constructor of the <code>WebAuthnManager</code> class and inject validators.</p>
 </div>
 <div class="sect2">
 <h3 id="attestation-statement-validation"><a class="anchor" href="#attestation-statement-validation"></a>3.1. Attestation statement validation</h3>
 <div class="paragraph">
 <p>Attestation statement validation is provided by the implementation of <code>AttestationStatementValidator</code> interface.
 For each attestation statement format, corresponding validator classes are provided.
-Please specify its list at the first argument of the constructor of <code>WebAuthnRegistrationContextValidator</code> class.
-For example, if you would like to limit the supported format to <code>packed</code> only, make the <code>List</code> only with
-<code>PackedAttestationStatementValidator</code>, and if you would like to support <code>packed</code> and <code>tpm</code> format, make the <code>List</code> with
-<code>PackedAttestationStatementValidator</code> and <code>TPMAttestationStatementValidator</code>.</p>
+Please specify its list at the first argument of the constructor of <code>WebAuthnManager</code> class.
+For example, if you would like to limit the supported format to <code>packed</code> only, add only
+<code>PackedAttestationStatementValidator</code> to the <code>List</code>, and if you would like to support <code>packed</code> and <code>tpm</code> format,
+make the <code>List</code> with <code>PackedAttestationStatementValidator</code> and <code>TPMAttestationStatementValidator</code>.</p>
 </div>
 <div class="sect3">
 <h4 id="attestation-statement-trustworthiness-validation"><a class="anchor" href="#attestation-statement-trustworthiness-validation"></a>3.1.1. Attestation statement trustworthiness validation</h4>
@@ -867,16 +874,43 @@ Certificate path validation is delegated via <code>CertPathTrustworthinessValida
 For example, <code>TrustAnchorCertPathTrustworthinessValidator</code> verifies trustworthiness by checking the attestation certificate
 chains to the root certificate provided as <code>TrustAnchor</code> via <code>TrustAnchorResolver</code> interface.</p>
 </div>
-<div class="sect4">
-<h5 id="attestation-statement-trustworthiness-validation-using-fido-metadata-service"><a class="anchor" href="#attestation-statement-trustworthiness-validation-using-fido-metadata-service"></a>Attestation statement trustworthiness validation using FIDO Metadata Service</h5>
+</div>
+<div class="sect3">
+<h4 id="trust-anchor-resolution"><a class="anchor" href="#trust-anchor-resolution"></a>3.1.2. Trust anchor resolution</h4>
 <div class="paragraph">
-<p>FIDO Alliance offers FIDO Metadata Service, which delivers Authenticator metadata.
-With this service, Relying Party can judge whether a security issue is reported for the authenticator trying to register.
-When verifying the reliability of the attestation statement with this service, <code>MetadataItemsCertPathTrustworthinessValidator</code> in
-<code>webauthn4j-metadata</code> module can be used for it.
-As <code>MetadataItemsCertPathTrustworthinessValidator</code> resolves the <code>MetadataItem</code> list corresponding to
-the AAGUID of the authenticator through the <code>MetadataItemsResolver</code> interface, we can verify the reliability with
-the service by a combination of <code>MetadataItemsResolverImpl</code> and <code>FidoMdsMetadataItemsProvider</code>.</p>
+<p><code>TrustAnchorResolver</code> interface is provided for <code>TrustAnchor</code> resolution.
+WebAuthn4J provides a <code>TrustAnchorResolver</code> implementation <code>TrustAnchorResolverImpl</code>.
+<code>TrustAnchorResolverImpl</code> delegates <code>TrustAnchor</code> fetching to <code>TrustAnchorsProvider</code> interface.
+There are some <code>TrustAnchorsProvider</code> implementations - <code>KeyStoreTrustAnchorsProvider</code> is to fetch <code>TrustAnchor`s from
+Java Key Store file, and `MetadataStatementsTrustAnchorsProvider</code> is to fetch them from
+<a href="https://fidoalliance.org/specs/fido-v2.0-rd-20180702/fido-metadata-statement-v2.0-rd-20180702.html">metadata statement</a>.</p>
+</div>
+<div class="sect4">
+<h5 id="trust-anchor-resolution-using-fido-metadata-service"><a class="anchor" href="#trust-anchor-resolution-using-fido-metadata-service"></a>Trust anchor resolution using FIDO Metadata Service</h5>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+<code>webauthn4j-meta</code> module, which provides FIDO Metadata Statement handling is under experimental status.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>FIDO Alliance offers FIDO Metadata Service, which provides metadata of authenticators.
+<code>FidoMdsMetadataItemsProvider</code> is provided for utilizing the authenticator metadata from the service.
+It can be used for <code>TrustAnchor</code> resolution by combining with <code>MetadataItemsMetadataStatementsProvider</code>.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="authenticator-vulnerability-announcement-check-using-fido-metadata-service"><a class="anchor" href="#authenticator-vulnerability-announcement-check-using-fido-metadata-service"></a>Authenticator vulnerability announcement check using FIDO Metadata Service</h5>
+<div class="paragraph">
+<p>Authenticator vulnerability announcement check is also possible with FIDO Metadata Service by utilizing
+<code>FidoMdsMetadataValidator</code>. As it is an implementation of <code>CustomRegistrationValidator</code>, please refer
+<a href="_./deep-dive.html#Custom validator registration">Custom validator registration</a>.</p>
 </div>
 </div>
 </div>
@@ -922,7 +956,9 @@ Please implement in your caller code. If you are using Spring Security, consider
 <div class="sect3">
 <h4 id="metadata-webauthn4j-metadata-jar"><a class="anchor" href="#metadata-webauthn4j-metadata-jar"></a>4.1.2. Metadata webauthn4j-metadata.jar</h4>
 <div class="paragraph">
-<p>Provides additional features regarding FIDO Metadata Service.</p>
+<p>Provides additional features regarding FIDO Metadata Service.
+As FIDO Metadata Statement specification is still draft, it is in experimental status.
+The included classes don&#8217;t follow semantic versioning and the design may be changed even though it is public.</p>
 </div>
 </div>
 <div class="sect3">
@@ -940,15 +976,45 @@ may be changed even though it is public.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="classes"><a class="anchor" href="#classes"></a>4.2. Classes</h3>
+<h3 id="custom-converter-implementation"><a class="anchor" href="#custom-converter-implementation"></a>4.2. Custom converter implementation</h3>
+<div class="paragraph">
+<p>WebAuthn4J uses Jackson library for JSON and CBOR serialization and deserialization.
+If you would like to custom serialization or deserialization, register custom serializer or deserializer to the
+underlying Jackson <code>ObjectMapper</code>.</p>
+</div>
 <div class="sect3">
-<h4 id="data-transfer-objects"><a class="anchor" href="#data-transfer-objects"></a>4.2.1. Data Transfer Objects</h4>
+<h4 id="custom-converter-registration"><a class="anchor" href="#custom-converter-registration"></a>4.2.1. Custom converter registration</h4>
+<div class="paragraph">
+<p>Since WebAuthn4J wraps <code>ObjectMapper</code> with <code>ObjectConverter</code>, inject your customized <code>ObjectMapper</code> through <code>ObjectConverter</code>
+constructor and specify the <code>ObjectConverter</code> instance to the <code>WebAuthnManager</code> instance creation parameter.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="custom-validator-implementation"><a class="anchor" href="#custom-validator-implementation"></a>4.3. Custom validator implementation</h3>
+<div class="paragraph">
+<p>WebAuthn4J can add custom validator.
+For registration validation, implement <code>CustomRegistrationValidator</code>.
+For authentication validation, implement <code>CustomAuthenticationValidator</code>.</p>
+</div>
+<div class="sect3">
+<h4 id="custom-validator-registration"><a class="anchor" href="#custom-validator-registration"></a>4.3.1. Custom validator registration</h4>
+<div class="paragraph">
+<p><code>CustomRegistrationValidator</code> and <code>CustomAuthenticationValidator</code> implementation can be registered to <code>WebAuthnManager</code>
+via its constructor&#8217;s <code>customRegistrationValidators</code> and <code>customAuthenticationValidators</code> parameters.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="classes"><a class="anchor" href="#classes"></a>4.4. Classes</h3>
+<div class="sect3">
+<h4 id="data-transfer-objects"><a class="anchor" href="#data-transfer-objects"></a>4.4.1. Data Transfer Objects</h4>
 <div class="paragraph">
 <p>Classes under <code>com.webauthn4j.data</code> package are designed as immutable DTO.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="converter-jackson-modules-for-webauthn"><a class="anchor" href="#converter-jackson-modules-for-webauthn"></a>4.2.2. Converter, Jackson Modules for WebAuthn</h4>
+<h4 id="converter-jackson-modules-for-webauthn"><a class="anchor" href="#converter-jackson-modules-for-webauthn"></a>4.4.2. Converter, Jackson Modules for WebAuthn</h4>
 <div class="paragraph">
 <p>Classes under <code>com.webauthn4j.data</code> package are designed as being serializable and deserializable.</p>
 </div>
@@ -958,24 +1024,19 @@ may be changed even though it is public.</p>
 WebAuthn4J’s validators register these modules onto Jackson&#8217;s <code>ObjectMapper</code> automatically.</p>
 </div>
 <div class="paragraph">
-<p>If you want to use WebAuthn4J’s serializer and deserializer outside these WebAuthn4J&#8217;s validators,
+<p>If you want to use WebAuthn4J’s serializer and deserializer outside of WebAuthnManager,
 you can register these modules onto Jackson&#8217;s <code>ObjectMapper</code>.</p>
-</div>
-<div class="paragraph">
-<p>If you want to use your custom serializer and deserializer for WebAuthn4J’s validators for parsing custom extensions,
-you can register your custom serializer and deserializer onto <code>ObjectMapper</code> and pass it onto WebAuthn4J' validators
-via those constructors.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="trustanchorsresolver"><a class="anchor" href="#trustanchorsresolver"></a>4.2.3. TrustAnchorsResolver</h4>
+<h4 id="trustanchorsresolver"><a class="anchor" href="#trustanchorsresolver"></a>4.4.3. TrustAnchorsResolver</h4>
 <div class="paragraph">
 <p><code>TrustAnchorsResolver</code> interface is used by <code>TrustAnchorCertPathTrustworthinessValidator</code> to explore root certificates
 in the verification of the authenticity of the attestation statements.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="trustanchorsprovider"><a class="anchor" href="#trustanchorsprovider"></a>4.2.4. TrustAnchorsProvider</h4>
+<h4 id="trustanchorsprovider"><a class="anchor" href="#trustanchorsprovider"></a>4.4.4. TrustAnchorsProvider</h4>
 <div class="paragraph">
 <p><code>TrustAnchorsProvider</code> is an interface that <code>TrustAnchorsResolverImpl</code> delegates TrustAnchor load operation to.
 KeyStoreFileTrustAnchorsProvider is provided as an implementation for loading TrustAnchor from Java Key Store file.
@@ -983,14 +1044,14 @@ Spring Security WebAuthn also provides <code>CertFileResourcesTrustAnchorProvide
 </div>
 </div>
 <div class="sect3">
-<h4 id="exceptions"><a class="anchor" href="#exceptions"></a>4.2.5. Exceptions</h4>
+<h4 id="exceptions"><a class="anchor" href="#exceptions"></a>4.4.5. Exceptions</h4>
 <div class="paragraph">
 <p>If some verification fails, WebAuthn4J throws an exception class inheriting <code>ValidationException</code>.</p>
 </div>
 </div>
 </div>
 <div class="sect2">
-<h3 id="logging"><a class="anchor" href="#logging"></a>4.3. Logging</h3>
+<h3 id="logging"><a class="anchor" href="#logging"></a>4.5. Logging</h3>
 <div class="paragraph">
 <p>WebAuthn4J uses SLF4J as log interface library. You can use any kind of this implementation like Logback as you want.</p>
 </div>
@@ -1002,18 +1063,15 @@ Spring Security WebAuthn also provides <code>CertFileResourcesTrustAnchorProvide
 <div class="sectionbody">
 <div class="paragraph">
 <p>WebAuthn is state of the art technology. Therefore, there are still some limitations products utilizing it have.
-This section tells you issues known at the time of Feb 2019 that might be encountered if you try to use products
+This section tells you issues known at the time of Dec 2019 that might be encountered if you try to use products
 utilizing WebAuthn technology.</p>
 </div>
 <div class="sect2">
 <h3 id="safaris-webauthn-support"><a class="anchor" href="#safaris-webauthn-support"></a>5.1. Safari&#8217;s WebAuthn support</h3>
 <div class="paragraph">
-<p>Safari has not yet supported WebAuthn, which means that you cannot use iPhone/iPad to experience authentication
-utilizing WebAuthn technology.</p>
-</div>
-<div class="paragraph">
-<p>Safari&#8217;s Technology Preview version has supported WebAuthn using CTAP2 Authenticator, but it has not yet integrated
-Face ID and Touch ID. However, it seems to be expected to integrate them sooner or later.</p>
+<p>On macOS, WebAuthn is supported from Safari 13.
+on iPhone/iPad, WebAuthn is supported from Safari on iOS13.3.
+Both implementation only support external authenticators. TouchID and FaceID is not yet supported at this moment.</p>
 </div>
 </div>
 <div class="sect2">
@@ -1053,7 +1111,7 @@ mechanism for your users using platforms not supporting the feature you expected
 <div class="paragraph">
 <p>For example, if you utilize ResidentKey to omit entering user account&#8217;s ID, it might be better to support two-factor
 authentication requiring password authentication for users using Chrome and Firefox, and two-factor authentication
-without WebAuthn for users using Safari.</p>
+without WebAuthn for users using browsers without WebAuthn support.</p>
 </div>
 </div>
 <div class="sect2">
@@ -1078,7 +1136,7 @@ have not yet supported it.</p>
 <div id="footer">
 <div id="footer-text">
 Version 0.10.0-SNAPSHOT<br>
-Last updated 2019-12-27 16:08:33 UTC
+Last updated 2019-12-28 11:57:03 UTC
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">

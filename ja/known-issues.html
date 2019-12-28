@@ -455,12 +455,14 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sectionbody">
 <div class="paragraph">
 <p>WebAuthnは各ブラウザベンダが実装を進めている最中の新技術であり、仕様で定められていても、残念ながら実際の活用には制約がかかる場面もあります。
-本節では、2019/10 現在のWebAuthnを活用する上での既知の問題を整理します。</p>
+本節では、2019/12 現在のWebAuthnを活用する上での既知の問題を整理します。</p>
 </div>
 <div class="sect2">
 <h3 id="safariのサポート"><a class="anchor" href="#safariのサポート"></a>1.1. Safariのサポート</h3>
 <div class="paragraph">
-<p>Safari 13からmacOSではWebAuthnのサポートが開始されましたが、iPhone/iPadでは現在、WebAuthnは利用できません。</p>
+<p>macOSではSafari 13からWebAuthnのサポートが開始されました。
+iPhone/iPadではiOS 13.3のSafariから、WebAuthnのサポートが開始されました。どちらも外部セキュリティキーのサポートのみであり、
+Touch ID/Face ID のサポートは始まっていません。</p>
 </div>
 </div>
 <div class="sect2">
@@ -487,7 +489,7 @@ Roaming Authenticatorを利用して別デバイスで認証を行う場合に�
 <h3 id="firefox"><a class="anchor" href="#firefox"></a>1.3. Firefox</h3>
 <div class="paragraph">
 <p>FirefoxはWindows 10 1903からOS標準のWebAuthn APIを利用することでCTAP2のAuthenticatorに対応しています。
-但し、macOSや、Linuxでは、FIDO U2FのAuthenticatorのみに対応しています。</p>
+macOSや、Linuxでは、FIDO U2FのAuthenticatorのみに対応しています。</p>
 </div>
 </div>
 <div class="sect2">
@@ -496,7 +498,7 @@ Roaming Authenticatorを利用して別デバイスで認証を行う場合に�
 <p>各ブラウザ、WebAuthnへの対応が進みつつありますが、上記の通りサポート状況には差異があり、あるプラットフォームで
 サポートされている機能が別のプラットフォームでは利用できないことは珍しくなりません。
 ResidentKeyを活用してID入力の省略を実現する場合でも、Chrome、Firefoxユーザーを考慮してパスワードとの二要素認証のサポートを行う、
-Safariユーザーを考慮してWebAuthn以外での二要素認証のサポートを行う、などフォールバック手段の確保に努めましょう。</p>
+WebAuthnが利用できないユーザーを考慮してWebAuthn以外での二要素認証のサポートを行う、などフォールバック手段の確保に努めましょう。</p>
 </div>
 </div>
 <div class="sect2">
@@ -520,7 +522,7 @@ PS256、PS384、PS512アルゴリズムはWebAuthn仕様でオプションとさ
 <div id="footer">
 <div id="footer-text">
 Version 0.10.0-SNAPSHOT<br>
-Last updated 2019-12-27 16:08:33 UTC
+Last updated 2019-12-28 11:57:03 UTC
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">
