@@ -662,18 +662,18 @@ FIDO2 Test ToolsはFIDO2 Transport Binding ProfileのREST API経由でテスト�
 <div class="sect2">
 <h3 id="構成証明の検証"><a class="anchor" href="#構成証明の検証"></a>2.1. 構成証明の検証</h3>
 <div class="paragraph">
-<p>認証デバイスの登録時に構成証明を検証する際は、<code>WebAuthnRegistrationRequest</code> を引数に
+<p>認証デバイスの登録時に構成証明を検証する際は、<code>RegistrationRequest</code> を引数に
 <code>WebAuthnManager#validate</code> メソッドを用いて登録リクエストのパース、検証を行ってください。
 登録リクエストの検証でエラーが発生した場合に、元のパースされたデータにアクセスしたい場合は、
 <code>WebAuthnManager#parse</code> メソッドを用いて登録リクエストをパースしたうえで、
-得られた <code>WebAuthnRegistrationData</code> のインスタンスを <code>WebAuthnManager#validate</code> メソッドに渡して実行してください。</p>
+得られた <code>RegistrationData</code> のインスタンスを <code>WebAuthnManager#validate</code> メソッドに渡して実行してください。</p>
 </div>
 <div class="paragraph">
-<p><code>WebAuthnRegistrationRequest</code> のメンバー はフロントエンド側でWebAuthn JS APIを実行して取得した値となります。
+<p><code>RegistrationRequest</code> のメンバー はフロントエンド側でWebAuthn JS APIを実行して取得した値となります。
 何らかの方法でフロントエンド側からサーバー側に伝送し、指定してください。</p>
 </div>
 <div class="paragraph">
-<p><code>WebAuthnRegistrationParameters</code> は、<code>WebAuthnManager#validate</code> メソッドのもう一つの引数であり、
+<p><code>RegistrationParameters</code> は、<code>WebAuthnManager#validate</code> メソッドのもう一つの引数であり、
 サーバーの状態や検証条件をまとめたパラメータです。 サーバーの状態については、 <code>serverProperty</code> としてまとめています。
 <code>ServerProperty</code> のコンストラクタを呼び出す際のパラメータには以下の値を指定して下さい。</p>
 </div>
@@ -724,18 +724,18 @@ boolean userVerificationRequired = false;
 boolean userPresenceRequired = true;
 List&lt;String&gt; expectedExtensionIds = Collections.emptyList();
 
-WebAuthnRegistrationRequest webAuthnRegistrationRequest = new WebAuthnRegistrationRequest(attestationObject, clientDataJSON, clientExtensionJSON, transports);
-WebAuthnRegistrationParameters webAuthnRegistrationParameters = new WebAuthnRegistrationParameters(serverProperty, userVerificationRequired, userPresenceRequired, expectedExtensionIds);
-WebAuthnRegistrationData webAuthnRegistrationData;
+RegistrationRequest registrationRequest = new RegistrationRequest(attestationObject, clientDataJSON, clientExtensionJSON, transports);
+RegistrationParameters registrationParameters = new RegistrationParameters(serverProperty, userVerificationRequired, userPresenceRequired, expectedExtensionIds);
+RegistrationData registrationData;
 try{
-    webAuthnRegistrationData = webAuthnManager.parse(webAuthnRegistrationRequest);
+    registrationData = webAuthnManager.parse(registrationRequest);
 }
 catch (DataConversionException e){
     // If you would like to handle WebAuthn data structure parse error, please catch DataConversionException
     throw e;
 }
 try{
-    webAuthnManager.validate(webAuthnRegistrationData, webAuthnRegistrationParameters);
+    webAuthnManager.validate(registrationData, registrationParameters);
 }
 catch (ValidationException e){
     // If you would like to handle WebAuthn data validation error, please catch ValidationException
@@ -745,9 +745,9 @@ catch (ValidationException e){
 // please persist Authenticator object, which will be used in the authentication process.
 Authenticator authenticator =
         new AuthenticatorImpl( // You may create your own Authenticator implementation to save friendly authenticator name
-                webAuthnRegistrationData.getAttestationObject().getAuthenticatorData().getAttestedCredentialData(),
-                webAuthnRegistrationData.getAttestationObject().getAttestationStatement(),
-                webAuthnRegistrationData.getAttestationObject().getAuthenticatorData().getSignCount()
+                registrationData.getAttestationObject().getAuthenticatorData().getAttestedCredentialData(),
+                registrationData.getAttestationObject().getAttestationStatement(),
+                registrationData.getAttestationObject().getAuthenticatorData().getSignCount()
         );
 save(authenticator); // please persist authenticator in your manner</code></pre>
 </div>
@@ -756,12 +756,12 @@ save(authenticator); // please persist authenticator in your manner</code></pre>
 <div class="sect2">
 <h3 id="アサーションの検証"><a class="anchor" href="#アサーションの検証"></a>2.2. アサーションの検証</h3>
 <div class="paragraph">
-<p>認証時にアサーションを検証する際は、<code>WebAuthnAuthenticationRequest</code> を引数に  <code>WebAuthnManager#validate</code> メソッドを
-実行してください。<code>WebAuthnAuthenticationRequest</code> の
+<p>認証時にアサーションを検証する際は、<code>AuthenticationRequest</code> を引数に  <code>WebAuthnManager#validate</code> メソッドを
+実行してください。<code>AuthenticationRequest</code> の
 コンストラクタの引数に指定する、 <code>credentialId</code> と <code>userHandle</code> 、 <code>authenticatorData</code>  、 <code>clientDataJSON</code> 、<code>signature</code> は
 フロントエンド側でWebAuthn JS APIを実行して取得した値となります。
 何らかの方法でフロントエンド側からサーバー側に伝送し、指定してください。
-<code>WebAuthnManager#validate</code> メソッドのもう一つの引数である <code>WebAuthnAuthenticationParameters</code>  の
+<code>WebAuthnManager#validate</code> メソッドのもう一つの引数である <code>AuthenticationParameters</code>  の
 コンストラクタの引数に指定する、 <code>serverProperty</code> はサーバー側から取得する値をまとめたパラメータです。</p>
 </div>
 <div class="paragraph">
@@ -802,8 +802,8 @@ List&lt;String&gt; expectedExtensionIds = Collections.emptyList();
 
 Authenticator authenticator = load(credentialId); // please load authenticator object persisted in the registration process in your manner
 
-WebAuthnAuthenticationRequest webAuthnAuthenticationRequest =
-        new WebAuthnAuthenticationRequest(
+AuthenticationRequest authenticationRequest =
+        new AuthenticationRequest(
                 credentialId,
                 userHandle,
                 authenticatorData,
@@ -811,8 +811,8 @@ WebAuthnAuthenticationRequest webAuthnAuthenticationRequest =
                 clientExtensionJSON,
                 signature
         );
-WebAuthnAuthenticationParameters webAuthnAuthenticationParameters =
-        new WebAuthnAuthenticationParameters(
+AuthenticationParameters authenticationParameters =
+        new AuthenticationParameters(
                 serverProperty,
                 authenticator,
                 userVerificationRequired,
@@ -820,16 +820,16 @@ WebAuthnAuthenticationParameters webAuthnAuthenticationParameters =
                 expectedExtensionIds
         );
 
-WebAuthnAuthenticationData webAuthnAuthenticationData;
+AuthenticationData authenticationData;
 try{
-    webAuthnAuthenticationData = webAuthnManager.parse(webAuthnAuthenticationRequest);
+    authenticationData = webAuthnManager.parse(authenticationRequest);
 }
 catch (DataConversionException e){
     // If you would like to handle WebAuthn data structure parse error, please catch DataConversionException
     throw e;
 }
 try{
-    webAuthnManager.validate(webAuthnAuthenticationData, webAuthnAuthenticationParameters);
+    webAuthnManager.validate(authenticationData, authenticationParameters);
 }
 catch (ValidationException e){
     // If you would like to handle WebAuthn data validation error, please catch ValidationException
@@ -837,8 +837,8 @@ catch (ValidationException e){
 }
 // please update the counter of the authenticator record
 updateCounter(
-        webAuthnAuthenticationData.getAuthenticatorData().getAttestedCredentialData().getCredentialId(),
-        webAuthnAuthenticationData.getAuthenticatorData().getSignCount()
+        authenticationData.getAuthenticatorData().getAttestedCredentialData().getCredentialId(),
+        authenticationData.getAuthenticatorData().getSignCount()
 );</code></pre>
 </div>
 </div>
@@ -931,7 +931,7 @@ FIDO Metadata Statement関連の機能を提供する <code>webauthn4j-meta</cod
 <h3 id="認証デバイスの表現"><a class="anchor" href="#認証デバイスの表現"></a>3.2. 認証デバイスの表現</h3>
 <div class="paragraph">
 <p>認証デバイスを表現するインタフェースとして、 <code>Authenticator</code> インタフェースが存在します。
-登録時に、 <code>WebAuthnRegistrationData</code> クラスが含む値を用いて <code>Authenticator</code> インタフェースの
+登録時に、 <code>RegistrationData</code> クラスが含む値を用いて <code>Authenticator</code> インタフェースの
 インスタンスを作成し、アプリケーションの作法に則り永続化してください。認証時の検証に必要となります。
 なお、永続化する際は、検索する際の利便性を考え、credentialIdをキーに永続化すると良いでしょう。
 <code>Authenticator</code> インタフェースの実装クラスを設計する際は、アプリケーションの要件に合わせて拡張すると良いでしょう。
@@ -1141,7 +1141,7 @@ PS256、PS384、PS512アルゴリズムはWebAuthn仕様でオプションとさ
 <div id="footer">
 <div id="footer-text">
 Version 0.10.0-SNAPSHOT<br>
-Last updated 2019-12-28 15:12:15 UTC
+Last updated 2019-12-29 03:57:12 UTC
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">

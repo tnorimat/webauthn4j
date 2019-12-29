@@ -533,7 +533,7 @@ FIDO Metadata Statement関連の機能を提供する <code>webauthn4j-meta</cod
 <h3 id="認証デバイスの表現"><a class="anchor" href="#認証デバイスの表現"></a>1.2. 認証デバイスの表現</h3>
 <div class="paragraph">
 <p>認証デバイスを表現するインタフェースとして、 <code>Authenticator</code> インタフェースが存在します。
-登録時に、 <code>WebAuthnRegistrationData</code> クラスが含む値を用いて <code>Authenticator</code> インタフェースの
+登録時に、 <code>RegistrationData</code> クラスが含む値を用いて <code>Authenticator</code> インタフェースの
 インスタンスを作成し、アプリケーションの作法に則り永続化してください。認証時の検証に必要となります。
 なお、永続化する際は、検索する際の利便性を考え、credentialIdをキーに永続化すると良いでしょう。
 <code>Authenticator</code> インタフェースの実装クラスを設計する際は、アプリケーションの要件に合わせて拡張すると良いでしょう。
@@ -556,7 +556,7 @@ Spring Security WebAuthnがそれらの認証フレームワーク特化の部�
 <div id="footer">
 <div id="footer-text">
 Version 0.10.0-SNAPSHOT<br>
-Last updated 2019-12-28 15:12:15 UTC
+Last updated 2019-12-29 03:57:12 UTC
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">

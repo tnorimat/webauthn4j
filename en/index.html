@@ -657,17 +657,17 @@ the data which contains signature and is sent at authentication is called "asser
 <h3 id="attestation-verification"><a class="anchor" href="#attestation-verification"></a>2.1. Attestation verification</h3>
 <div class="paragraph">
 <p>To validate an attestation on authenticator registration, call <code>WebAuthnManager#validate</code> with a
-<code>WebAuthnRegistrationRequest</code> instance as an argument.
+<code>RegistrationRequest</code> instance as an argument.
 If you would like to access the parsed data when an validation error occurred, please use <code>WebAuthnManager#parse</code> to
-parse the registration request and pass the returned <code>WebAuthnRegistrationData</code> instance to <code>WebAuthnManager#validate</code>
+parse the registration request and pass the returned <code>RegistrationData</code> instance to <code>WebAuthnManager#validate</code>
 method.</p>
 </div>
 <div class="paragraph">
-<p>The members of <code>WebAuthnRegistrationRequest</code> are the values obtained by the WebAuthn JS API in the front end side.
+<p>The members of <code>RegistrationRequest</code> are the values obtained by the WebAuthn JS API in the front end side.
 Transmit from the front end side to the server side in some way.</p>
 </div>
 <div class="paragraph">
-<p><code>WebAuthnRegistrationParameters</code> is an another argument for <code>WebAuthnManager#parse</code> method, and contains
+<p><code>RegistrationParameters</code> is an another argument for <code>WebAuthnManager#parse</code> method, and contains
 server property and validation conditions.</p>
 </div>
 <div class="paragraph">
@@ -722,18 +722,18 @@ boolean userVerificationRequired = false;
 boolean userPresenceRequired = true;
 List&lt;String&gt; expectedExtensionIds = Collections.emptyList();
 
-WebAuthnRegistrationRequest webAuthnRegistrationRequest = new WebAuthnRegistrationRequest(attestationObject, clientDataJSON, clientExtensionJSON, transports);
-WebAuthnRegistrationParameters webAuthnRegistrationParameters = new WebAuthnRegistrationParameters(serverProperty, userVerificationRequired, userPresenceRequired, expectedExtensionIds);
-WebAuthnRegistrationData webAuthnRegistrationData;
+RegistrationRequest registrationRequest = new RegistrationRequest(attestationObject, clientDataJSON, clientExtensionJSON, transports);
+RegistrationParameters registrationParameters = new RegistrationParameters(serverProperty, userVerificationRequired, userPresenceRequired, expectedExtensionIds);
+RegistrationData registrationData;
 try{
-    webAuthnRegistrationData = webAuthnManager.parse(webAuthnRegistrationRequest);
+    registrationData = webAuthnManager.parse(registrationRequest);
 }
 catch (DataConversionException e){
     // If you would like to handle WebAuthn data structure parse error, please catch DataConversionException
     throw e;
 }
 try{
-    webAuthnManager.validate(webAuthnRegistrationData, webAuthnRegistrationParameters);
+    webAuthnManager.validate(registrationData, registrationParameters);
 }
 catch (ValidationException e){
     // If you would like to handle WebAuthn data validation error, please catch ValidationException
@@ -743,9 +743,9 @@ catch (ValidationException e){
 // please persist Authenticator object, which will be used in the authentication process.
 Authenticator authenticator =
         new AuthenticatorImpl( // You may create your own Authenticator implementation to save friendly authenticator name
-                webAuthnRegistrationData.getAttestationObject().getAuthenticatorData().getAttestedCredentialData(),
-                webAuthnRegistrationData.getAttestationObject().getAttestationStatement(),
-                webAuthnRegistrationData.getAttestationObject().getAuthenticatorData().getSignCount()
+                registrationData.getAttestationObject().getAuthenticatorData().getAttestedCredentialData(),
+                registrationData.getAttestationObject().getAttestationStatement(),
+                registrationData.getAttestationObject().getAuthenticatorData().getSignCount()
         );
 save(authenticator); // please persist authenticator in your manner</code></pre>
 </div>
@@ -754,17 +754,17 @@ save(authenticator); // please persist authenticator in your manner</code></pre>
 <div class="sect2">
 <h3 id="assertion-verification"><a class="anchor" href="#assertion-verification"></a>2.2. Assertion verification</h3>
 <div class="paragraph">
-<p>To parse and validate an assertion on authentication, call <code>WebAuthnManager#parse</code> with a <code>WebAuthnRegistrationRequest</code>
+<p>To parse and validate an assertion on authentication, call <code>WebAuthnManager#parse</code> with a <code>RegistrationRequest</code>
 instance as an argument. If you would like to access the parsed data when an validation error occurred, please use
-<code>WebAuthnManager#parse</code> to parse the authentication request and pass the returned <code>WebAuthnAuthenticationData</code> instance
+<code>WebAuthnManager#parse</code> to parse the authentication request and pass the returned <code>AuthenticationData</code> instance
 to <code>WebAuthnManager#validate</code> method.</p>
 </div>
 <div class="paragraph">
-<p>The members of <code>WebAuthnAuthenticationRequest</code> are the values obtained by the WebAuthn JS API in the front end side.
+<p>The members of <code>AuthenticationRequest</code> are the values obtained by the WebAuthn JS API in the front end side.
 Transmit from the front end side to the server side in some way.</p>
 </div>
 <div class="paragraph">
-<p>WebAuthnAuthenticationParameters is an another argument for WebAuthnManager#parse method,
+<p>AuthenticationParameters is an another argument for WebAuthnManager#parse method,
 and contains server property, persisted authenticator and validation conditions.</p>
 </div>
 <div class="listingblock">
@@ -791,8 +791,8 @@ List&lt;String&gt; expectedExtensionIds = Collections.emptyList();
 
 Authenticator authenticator = load(credentialId); // please load authenticator object persisted in the registration process in your manner
 
-WebAuthnAuthenticationRequest webAuthnAuthenticationRequest =
-        new WebAuthnAuthenticationRequest(
+AuthenticationRequest authenticationRequest =
+        new AuthenticationRequest(
                 credentialId,
                 userHandle,
                 authenticatorData,
@@ -800,8 +800,8 @@ WebAuthnAuthenticationRequest webAuthnAuthenticationRequest =
                 clientExtensionJSON,
                 signature
         );
-WebAuthnAuthenticationParameters webAuthnAuthenticationParameters =
-        new WebAuthnAuthenticationParameters(
+AuthenticationParameters authenticationParameters =
+        new AuthenticationParameters(
                 serverProperty,
                 authenticator,
                 userVerificationRequired,
@@ -809,16 +809,16 @@ WebAuthnAuthenticationParameters webAuthnAuthenticationParameters =
                 expectedExtensionIds
         );
 
-WebAuthnAuthenticationData webAuthnAuthenticationData;
+AuthenticationData authenticationData;
 try{
-    webAuthnAuthenticationData = webAuthnManager.parse(webAuthnAuthenticationRequest);
+    authenticationData = webAuthnManager.parse(authenticationRequest);
 }
 catch (DataConversionException e){
     // If you would like to handle WebAuthn data structure parse error, please catch DataConversionException
     throw e;
 }
 try{
-    webAuthnManager.validate(webAuthnAuthenticationData, webAuthnAuthenticationParameters);
+    webAuthnManager.validate(authenticationData, authenticationParameters);
 }
 catch (ValidationException e){
     // If you would like to handle WebAuthn data validation error, please catch ValidationException
@@ -826,8 +826,8 @@ catch (ValidationException e){
 }
 // please update the counter of the authenticator record
 updateCounter(
-        webAuthnAuthenticationData.getAuthenticatorData().getAttestedCredentialData().getCredentialId(),
-        webAuthnAuthenticationData.getAuthenticatorData().getSignCount()
+        authenticationData.getAuthenticatorData().getAttestedCredentialData().getCredentialId(),
+        authenticationData.getAuthenticatorData().getSignCount()
 );</code></pre>
 </div>
 </div>
@@ -1136,7 +1136,7 @@ have not yet supported it.</p>
 <div id="footer">
 <div id="footer-text">
 Version 0.10.0-SNAPSHOT<br>
-Last updated 2019-12-28 15:12:15 UTC
+Last updated 2019-12-29 03:57:12 UTC
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">
